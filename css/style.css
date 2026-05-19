@@ -5,9 +5,28 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: black;
+    background: url('../img/fondo.png'); 
+    background-size: cover; /* cubre toda la pantalla */
+    background-position: center; /* centra la imagen */
+    background-repeat: no-repeat;
     color: white;
 }
+
+.body-index {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: white;
+
+}
+
+
+.mensaje-error {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
 
 /* ========================================= */
 /* ========= LOGIN / REGISTRO ============== */
@@ -93,13 +112,31 @@ a {
 
 .sidebar {
     width: 260px;
-    background: #0f172a;
+    background: #030303;
     color: #e2e8f0;
     display: flex;
     flex-direction: column;
     height: 100vh;
     position: sticky;
     top: 0;
+}
+
+.sidebar {
+    position: relative;
+}
+
+/* imagen SOLO abajo */
+.sidebar-fondo {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background: url('../img/fondo.png');
+    background-size: cover;
+    background-position: center;
+
+    opacity: 0.3; /* importante para que no moleste */
 }
 
 /* Cabecera */
@@ -146,7 +183,7 @@ a {
 }
 
 .sidebar nav a:hover {
-    background: #1e293b;
+    background: #000000;
     border-left: 4px solid red;
     color: white;
 }
@@ -287,3 +324,12 @@ a {
 .footer strong {
     color: red;
 }
+
+
+.logo-registro {
+    width: 100px;
+    height: 100px;      /* importante: mismo ancho y alto */
+    border-radius: 110%; /* hace el círculo */
+    object-fit: cover;  /* evita deformación */
+}
+

@@ -6,4 +6,4 @@
 
     <link rel="stylesheet" href="/NaxMusic/css/style.css">
 </head>
-<body>
+<body class="<?php echo $bodyClass ?? ''; ?>">

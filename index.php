@@ -1,5 +1,7 @@
+
 <?php
 session_start();
+$bodyClass = "body-index"; 
 include "views/header.php";
 ?>
 
@@ -37,13 +39,19 @@ include "views/header.php";
                     <span>🚪</span> <span>Cerrar sesion</span>
                 </a>
             <?php } else { ?>
-                <a href="view/login.php">
+                <a href="views/login.php">
                     <span>🔐</span> <span>Iniciar sesion</span>
                 </a>
             <?php } ?>
         </nav>
 
+        <div class="sidebar-fondo"></div>
+
+        
+
     </aside>
+
+
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
