@@ -7,6 +7,8 @@
 
 </footer>
 
+<!-- JS -->
+<script src="/NaxMusic/js/app.js"></script>
+
 </body>
 </html>
-``

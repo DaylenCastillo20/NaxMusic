@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// Evitar que el navegador guarde la pagina en el historial de cache
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once "../config/Database.php";
 require_once "../models/Usuario.php";
 
@@ -24,5 +29,6 @@ if ($user) {
     exit();
 
 } else {
-    echo "Correo o contraseña incorrectos";
+    header("Location: ../index.php?error=login");
+    exit();
 }

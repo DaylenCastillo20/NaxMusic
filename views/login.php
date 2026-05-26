@@ -1,6 +1,14 @@
 <?php
 $bodyClass = "body-auth";
 include "header.php";
+
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+
+require_once "../config/Database.php";
+require_once "../models/Usuario.php";
 ?>
 
 <body class="body-auth login-bg">
@@ -38,3 +46,8 @@ include "header.php";
 
 </div>
 
+<?php
+if (isset($_GET['error']) && $_GET['error'] == 'existe') {
+    echo "<div class='mensaje-error'>Correo o contrañera incorrectos</div>";
+}
+?>

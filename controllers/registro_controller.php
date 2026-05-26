@@ -1,6 +1,14 @@
 <?php
 
+session_start();
+
+// Evitar que el navegador guarde la pagina en el historial de cache
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once "../config/Database.php";
+
 
 $db = (new Database())->conectar();
 
@@ -19,21 +27,20 @@ $stmtCheck->execute();
 
 if ($stmtCheck->rowCount() > 0) {
     
-    echo "<script>
-        alert('Este usuario ya está registrado');
-        window.location.href = '../views/registro.php';
-    </script>";
+    header("Location: ../index.php?error=registro_pass");
     exit();
 
 }
 
-// validar contraseñas
+// validar contrasenas
 if ($password !== $confirmar) {
-    echo "❌ Las contraseñas no coinciden";
-    return;
+    
+    header("Location: ../index.php?error=registro_pass");
+    exit();
+
 }
 
-// encriptar contraseña
+// encriptar contrasena
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
 // insertar usuario
@@ -49,12 +56,14 @@ $stmt->bindParam(":password", $passwordHash);
 
 if ($stmt->execute()) {
 
-    // redirigir al index
-    header("Location: ../views/login.php");
+    // redirigir al login
+    header("Location: ../index.php?login=1");
     exit();
 
+
 } else {
-    echo "Error al registrar";
+    header("Location: ../index.php?error=registro_pass");
+    exit();
 }
-``
+
 ?>

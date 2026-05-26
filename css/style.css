@@ -5,109 +5,45 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: url('../img/fondo.png'); 
-    background-size: cover; /* cubre toda la pantalla */
-    background-position: center; /* centra la imagen */
-    background-repeat: no-repeat;
-    color: white;
-}
-
-.body-index {
-    margin: 0;
-    font-family: Arial, sans-serif;
     background: #000;
     color: white;
-
 }
 
+/* IMAGENES */
+img {
+    max-width: 100%;
+    height: auto;
+}
 
+/* MENSAJES */
 .mensaje-error {
-    color: red;
-    font-size: 13px;
-    margin-bottom: 10px;
-}
-
-
-/* ========================================= */
-/* ========= LOGIN / REGISTRO ============== */
-/* ========================================= */
-
-/* Centrar solo login y registro */
-.body-auth {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* Caja */
-.contenedor {
-    background: rgba(0,0,0,0.9);
-    border: 1px solid rgba(255,0,0,0.3);
-    padding: 30px;
-    border-radius: 15px;
-    width: 350px;
+    background: rgba(255,0,0,0.15);
+    border: 1px solid rgba(255,0,0,0.4);
+    color: #ff4d4d;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 15px 0;
+    font-size: 14px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255,0,0,0.3);
+    box-shadow: 0 0 10px rgba(255,0,0,0.2);
 }
 
-/* Logo */
-.contenedor img {
-    width: 100px;
-    margin-bottom: 15px;
-}
-
-/* Inputs */
-input {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 6px;
-    border: none;
-    background: #111;
-    color: white;
-}
-
-/* Botones */
-button {
-    width: 100%;
-    padding: 12px;
-    background: red;
-    border: none;
-    color: white;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #cc0000;
-}
-
-/* Links */
-a {
-    color: red;
-    text-decoration: none;
-}
-
-/* Mensajes */
 .mensaje-exito {
     color: lightgreen;
 }
 
 
 /* ========================================= */
-/* ========= LAYOUT PRINCIPAL (INDEX) ====== */
+/* ========= LAYOUT PRINCIPAL ============== */
 /* ========================================= */
 
-/* Contenedor principal: sidebar + contenido */
 .app-container {
     display: flex;
     min-height: 100vh;
 }
 
 /* ========================================= */
-/* ============= SIDEBAR ==================== */
+/* ============= SIDEBAR =================== */
 /* ========================================= */
 
 .sidebar {
@@ -119,33 +55,27 @@ a {
     height: 100vh;
     position: sticky;
     top: 0;
-}
-
-.sidebar {
     position: relative;
 }
 
-/* imagen SOLO abajo */
+/* fondo decorativo abajo */
 .sidebar-fondo {
     position: absolute;
     bottom: 0;
-    left: 0;
     width: 100%;
     height: 200px;
     background: url('../img/fondo.png');
     background-size: cover;
     background-position: center;
-
-    opacity: 0.3; /* importante para que no moleste */
+    opacity: 0.3;
 }
 
-/* Cabecera */
+/* cabecera */
 .sidebar-header {
     padding: 20px;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid #222;
 }
 
-/* Usuario */
 .admin-info {
     display: flex;
     align-items: center;
@@ -172,10 +102,9 @@ a {
     color: #aaa;
 }
 
-/* Menú */
+/* menu */
 .sidebar nav a {
     display: flex;
-    gap: 10px;
     padding: 12px 20px;
     color: #cbd5e1;
     text-decoration: none;
@@ -183,153 +112,189 @@ a {
 }
 
 .sidebar nav a:hover {
-    background: #000000;
+    background: #000;
     border-left: 4px solid red;
     color: white;
 }
 
 
 /* ========================================= */
-/* ========= CONTENIDO PRINCIPAL =========== */
+/* ========== CONTENIDO DINÁMICO =========== */
 /* ========================================= */
 
 .main-content {
     flex: 1;
-    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
 }
 
-/* HERO (texto principal) */
-.hero-card {
-    
-    background: #000000;
-    padding: 40px;
-    border-radius: 20px;
-    margin-bottom: 30px;
-    display: flex; 
-    justify-content: space-between;
+/* contenedor principal dinámico */
+
+#contenido {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 40px;
-
 }
 
 
-.hero-text {
-    max-width: 500px;
+/* fondo SOLO cuando cargues login */
+.fondo-login {
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)),
+        url('../img/fondo.png');
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.hero-card h1 {
-    font-size: 40px;
-    margin-bottom: 10px;
 
-}
+/* ========================================= */
+/* ========= LOGIN / REGISTRO ============== */
+/* ========================================= */
 
-.hero-card span {
-    color: red;
-}
-
-.hero-card p {
-    color: #ccc;
-    margin: 10px 0;
-}
-
-
-.hero-action {
+.contenedor {
+    background: rgba(0,0,0,0.9);
+    border: 1px solid rgba(255,0,0,0.3);
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
     text-align: center;
+    box-shadow: 0 0 20px rgba(255,0,0,0.3);
 }
 
-.hero-action a {
-    display: inline-block;
-    margin-top: 10px;
+.contenedor img {
+    width: 100px;
+    margin-bottom: 15px;
 }
 
-
-/* ========================================= */
-/* ============== BOTONES ================== */
-/* ========================================= */
-
-.btn {
-    background: red;
-    padding: 12px 25px;
-    border-radius: 30px;
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+    background: #111;
     color: white;
-    text-decoration: none;
-    display: inline-block;
 }
 
-.btn:hover {
+button {
+    width: 100%;
+    padding: 12px;
+    background: red;
+    border: none;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
     background: #cc0000;
 }
 
-
-/* ========================================= */
-/* ============ SERVICIOS ================== */
-/* ========================================= */
-
-.servicios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.servicio-card {
-    background: #111;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    transition: 0.3s;
-}
-
-.servicio-card:hover {
-    transform: scale(1.03);
-}
-
-
-/* ========================================= */
-/* ============ ESTADISTICAS ============== */
-/* ========================================= */
-
-.stats-grid {
-    display: flex;
-    gap: 20px;
-    margin-top: 30px;
-}
-
-.stat-card {
-    background: #111;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    flex: 1;
-}
-
-.stat-number {
-    font-size: 24px;
+a {
     color: red;
+    text-decoration: none;
 }
 
 
 /* ========================================= */
-/* ================ FOOTER ================= */
+/* ============ HERO y CONTENIDO =========== */
 /* ========================================= */
+
+.hero-card {
+    background: #000;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    margin-bottom: 20px;
+}
+
+
+/* ========================================= */
+/* ============ RESPONSIVE ================= */
+/* ========================================= */
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 200px;
+    }
+
+    .contenedor {
+        width: 90%;
+        padding: 20px;
+    }
+
+    #contenido {
+        padding: 20px;
+        align-items: flex-start;
+    }
+
+}
+
+/* --- CONTENEDOR DE ERRORES  --- */
+.error-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+
+    background: #111;
+    border-left: 4px solid #ff1a1a;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    box-shadow: 0 0 12px rgba(255,0,0,0.4);
+
+    z-index: 9999;
+    max-width: 280px;
+
+    font-size: 14px;
+}
+
+/* oculto */
+.hidden {
+    display: none;
+}
+
+/* texto */
+.error-content p {
+    margin: 0;
+    color: #fff;
+}
+
+/* botón cerrar pequeño */
+.error-close-btn {
+    background: transparent;
+    border: none;
+    color: #ff1a1a;
+    font-size: 18px;
+    cursor: pointer;
+}
 
 .footer {
-    margin-top: 40px;
-    text-align: center;
-    padding: 15px;
     background: #000;
     border-top: 1px solid rgba(255,0,0,0.3);
-    color: #aaa;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
 }
-
-.footer strong {
-    color: red;
-}
-
-
-.logo-registro {
-    width: 100px;
-    height: 100px;      /* importante: mismo ancho y alto */
-    border-radius: 110%; /* hace el círculo */
-    object-fit: cover;  /* evita deformación */
-}
-
