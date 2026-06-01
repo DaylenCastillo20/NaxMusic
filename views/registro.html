@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - NaxMusic</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/registro.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/login.css">
+
+</head>
+
+<body class="body-auth login-bg">
+
+    <div id="header-container"></div>
+
+    <main class="auth-screen">
+        <div class="contenedor contenedor-registro auth-card">
+            <img src="../img/logo.jpeg" alt="Logo NaxMusic" class="logo-registro">
+            <p class="auth-eyebrow">Cliente nuevo</p>
+            <h2>Crear cuenta</h2>
+            <p class="subtexto">Únete a <span>NaxMusic</span> y comienza a cotizar tus servicios</p>
+
+            <form id="registroForm">
+                <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
+                <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" pattern="[0-9]+"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+                <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                <input type="password" id="confirmar" name="confirmar" placeholder="Confirmar contraseña" required>
+
+                <button type="submit">Registrarse</button>
+            </form>
+
+            <div class="linea"></div>
+            <p class="texto-login">
+                ¿Ya tienes cuenta? <a href="login.html" onclick="if (typeof cargarContenido === 'function') { cargarContenido('login'); return false; }">Inicia sesión</a>
+            </p>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.js"></script>
+    <script type="module">
+        import { supabase } from '../config/DatabaseConfig.js';
+
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmar = document.getElementById('confirmar').value;
+
+            // Validación exacta de contraseñas de tu controlador
+            if (password !== confirmar) {
+                if (typeof window.mostrarError === 'function') {
+                    window.mostrarError("Las contraseñas no coinciden.");
+                } else {
+                    alert("Las contraseñas no coinciden.");
+                }
+                return;
+            }
+
+            // Encriptar con bcryptjs
+            const salt = dcodeIO.bcrypt.genSaltSync(10);
+            const passwordHash = dcodeIO.bcrypt.hashSync(password, salt);
+
+            // Registro en la tabla 'usuarios' directamente
+            const { data, error } = await supabase
+                .from('usuarios')
+                .insert([
+                    {
+                        nombre: nombre,
+                        telefono: telefono,
+                        email: email,
+                        password: passwordHash,
+                        tipo_usuario: 'Cliente'
+                    }
+                ]);
+
+            if (error) {
+                if (typeof window.mostrarError === 'function') {
+                    window.mostrarError('Error al registrar usuario: ' + error.message);
+                } else {
+                    alert('Error al registrar usuario: ' + error.message);
+                }
+            } else {
+                if (typeof window.cargarContenido === 'function') {
+                    window.cargarContenido('login');
+                } else {
+                    window.location.href = "login.html?login=1";
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<section class="services-shell" id="servicesShell">
+    <!-- SUB-PANEL IZQUIERDO: FILTROS -->
+    <aside class="services-panel services-filters services-scroll" aria-label="Filtros de servicios">
+        <div class="services-filter-title">
+            <h2>Filtros</h2>
+            <button type="button" id="limpiarFiltros">Limpiar</button>
+        </div>
+
+        <div class="filter-block">
+            <h3>Rango de precios</h3>
+            <div class="price-readout">
+                <span>$100</span>
+                <strong id="precioActual">$2,500</strong>
+            </div>
+            <input class="price-slider" id="precioMaximo" type="range" min="100" max="2500" value="2500" step="50">
+        </div>
+
+        <div class="filter-block">
+            <h3>Tipo de servicio</h3>
+            <label class="filter-choice"><input type="checkbox" name="categoria" value="Sonido"> Sonido</label>
+            <label class="filter-choice"><input type="checkbox" name="categoria" value="Iluminacion">
+                Iluminacion</label>
+            <label class="filter-choice"><input type="checkbox" name="categoria" value="DJ"> DJ</label>
+        </div>
+
+        <div class="filter-block">
+            <h3>Ideal para</h3>
+            <label class="filter-choice"><input type="checkbox" name="ideal" value="Conciertos"> Conciertos</label>
+            <label class="filter-choice"><input type="checkbox" name="ideal" value="Bodas"> Bodas</label>
+            <label class="filter-choice"><input type="checkbox" name="ideal" value="Fiestas"> Fiestas</label>
+            <label class="filter-choice"><input type="checkbox" name="ideal" value="Empresarial"> Empresarial</label>
+            <label class="filter-choice"><input type="checkbox" name="ideal" value="Galas"> Galas</label>
+        </div>
+    </aside>
+
+    <!-- AREA CENTRAL: CATALOGO -->
+    <main class="services-main" id="catalogoServicios">
+        <div class="services-toolbar">
+            <div class="services-tabs" role="tablist" aria-label="Categorias de servicios">
+                <button class="services-tab is-active" type="button" data-tab="Todos">Todos</button>
+                <button class="services-tab" type="button" data-tab="Sonido">Sonido</button>
+                <button class="services-tab" type="button" data-tab="Iluminacion">Iluminacion</button>
+                <button class="services-tab" type="button" data-tab="DJ">DJ</button>
+            </div>
+
+            <select class="services-sort" id="ordenServicios" aria-label="Ordenar servicios">
+                <option value="popular">Mas populares</option>
+                <option value="precio-asc">Precio menor</option>
+                <option value="precio-desc">Precio mayor</option>
+            </select>
+        </div>
+
+        <div class="services-catalog services-scroll">
+            <div class="services-grid" id="servicesGrid"></div>
+        </div>
+    </main>
+
+    <!-- SUB-PANEL DERECHO: CARRITO -->
+    <aside class="services-panel services-cart" id="panelCarrito" aria-label="Carrito de servicios">
+        <div class="services-cart-header">
+            <h2 id="tituloCarrito">Tu carrito (<span id="contadorCarrito">0</span>)</h2>
+            <button class="services-cart-edit" type="button" id="vaciarCarrito">Vaciar </button>
+        </div>
+
+        <div class="cart-list services-scroll" id="listaCarrito"></div>
+
+        <div class="cart-totals">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <strong id="subtotalCarrito">$0</strong>
+            </div>
+            <div class="total-row discount">
+                <span>Descuento</span>
+                <span id="descuentoCarrito">-$0</span>
+            </div>
+            <div class="total-row grand">
+                <span>Total estimado</span>
+                <strong id="totalCarrito">$0</strong>
+            </div>
+        </div>
+
+        <button class="cart-submit" type="button" id="irAlCarrito" disabled>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L23 6H6"></path>
+            </svg>
+            Solicitar Cotizacion
+        </button>
+
+        <div class="cart-help">
+            <h3>Necesitas algo especial?</h3>
+            <p>Contactanos para servicios personalizados.</p>
+            <a href="https://wa.me/573044271283" target="_blank" rel="noopener">Solicitar asesoria</a>
+        </div>
+    </aside>
+
+    <!-- FORMULARIO DE INFORMACION DEL EVENTO -->
+    <section class="event-stage" id="eventStage" aria-label="Informacion del evento">
+        <form class="event-form-card" id="formInformacionEvento">
+            <div class="event-form-header">
+                <div>
+                    <p>Cotizacion</p>
+                    <h2>Informacion del Evento</h2>
+                </div>
+                <button class="event-back" type="button" id="volverCatalogo">Volver al catalogo</button>
+            </div>
+
+            <div class="event-form-grid">
+                <div class="event-field">
+                    <label for="nombre_evento">Nombre del evento</label>
+                    <input id="nombre_evento" name="nombre_evento" type="text" placeholder="Ej: Boda de Maria y Juan"
+                        required>
+                </div>
+
+                <div class="event-field">
+                    <label for="tipo_evento">Tipo de Evento</label>
+                    <select id="tipo_evento" name="tipo_evento" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Fiesta">Fiesta</option>
+                        <option value="Concierto">Concierto</option>
+                        <option value="Empresarial">Empresarial</option>
+                        <option value="Gala">Gala</option>
+                    </select>
+                </div>
+
+                <div class="event-field">
+                    <label for="fecha_evento">Fecha</label>
+                    <input id="fecha_evento" name="fecha_evento" type="date" required>
+                </div>
+
+                <div class="event-field">
+                    <label for="hora_evento">Hora</label>
+                    <input id="hora_evento" name="hora_evento" type="time" required>
+                </div>
+
+                <div class="event-field">
+                    <label for="lugar">Lugar</label>
+                    <input id="lugar" name="lugar" type="text" placeholder="Ubicacion del evento" required>
+                </div>
+
+                <div class="event-field">
+                    <label for="cantidad_asistentes">Asistentes</label>
+                    <input id="cantidad_asistentes" name="cantidad_asistentes" type="number" min="1"
+                        placeholder="Ej: 100" required>
+                </div>
+
+                <div class="event-field is-full">
+                    <label for="descripcion">Descripcion</label>
+                    <textarea id="descripcion" name="descripcion"
+                        placeholder="Cuentanos el ambiente, horarios, necesidades tecnicas o detalles especiales..."
+                        required></textarea>
+                </div>
+            </div>
+
+            <div class="event-message" id="mensajeEvento" role="status" aria-live="polite"></div>
+
+            <button class="event-submit" type="submit">Generar cotizacion</button>
+        </form>
+    </section>
+
+    <!-- MODAL DE AUTENTICACION PARA COTIZACIONES -->
+    <div class="auth-modal" id="authQuoteModal" aria-hidden="true">
+        <div class="auth-modal-backdrop" data-auth-close></div>
+        <section class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+            <button class="auth-modal-close" type="button" id="cerrarAuthModal" aria-label="Cerrar">
+                &times;
+            </button>
+            <div class="auth-modal-content" id="authModalContent"></div>
+        </section>
+    </div>
+</section>
+
+<script src="js/servicios.js"></script>

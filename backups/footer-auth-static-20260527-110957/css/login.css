@@ -1,0 +1,136 @@
+body.body-auth {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:
+        linear-gradient(rgba(19, 8, 8, 0.85), rgba(0, 0, 0, 0.9)),
+        url('../img/fondo.png');
+
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+}
+
+/* fondo SOLO cuando cargues login desde SPA */
+.fondo-login {
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)),
+        url('../img/fondo.png');
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-bg {
+    background-image: linear-gradient(rgba(22, 18, 18, 0.85), rgba(13, 13, 17, 0.95)), url('../img/bg-auth.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.contenedor-registro {
+    background-color: #000000;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px;
+    margin: 60px auto;
+    text-align: center;
+    border: 1px solid #d81616;
+}
+
+.logo-registro {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.contenedor-registro h2 {
+    margin: 0 0 10px 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.subtexto {
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.subtexto span {
+    color: #ff0055;
+    font-weight: bold;
+}
+
+#loginForm input,
+#registroForm input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    background-color: #050303;
+    border: 1px solid #bd0707;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+#loginForm input:focus,
+#registroForm input:focus {
+    border-color: #ff0055;
+    outline: none;
+}
+
+#loginForm button,
+#registroForm button {
+    width: 100%;
+    padding: 12px;
+    background-color: #e10c0c;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#loginForm button:hover,
+#registroForm button:hover {
+    background-color: #ff0000bf;
+}
+
+.linea {
+    height: 1px;
+    background-color: #000000;
+    margin: 25px 0;
+}
+
+.texto-login {
+    font-size: 14px;
+    color: #aaaaaa;
+}
+
+.texto-login a {
+    color: #ff0000cf;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.texto-login a:hover {
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.863);
+}

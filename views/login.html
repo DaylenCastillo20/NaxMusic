@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - NaxMusic</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/footer.css">
+</head>
+
+<body class="body-auth login-bg">
+
+    <div id="header-container"></div>
+
+    <main class="auth-screen">
+        <div class="contenedor contenedor-registro auth-card">
+            <img src="../img/logo.jpeg" class="logo-registro" alt="Logo NaxMusic">
+            <p class="auth-eyebrow">Acceso cliente</p>
+            <h2>Iniciar Sesión</h2>
+            <p class="subtexto">Bienvenido de nuevo a <span>NAXMUSIC</span></p>
+
+            <form id="loginForm">
+                <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+
+            <div class="linea"></div>
+            <p class="texto-login">
+                ¿No tienes cuenta? <a href="registro.html" onclick="if (typeof cargarContenido === 'function') { cargarContenido('registro'); return false; }">Regístrate aquí</a>
+            </p>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.js"></script>
+    <script type="module">
+        import { supabase } from '../config/DatabaseConfig.js';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 1. Buscar en la tabla 'usuarios'
+            const { data: user, error } = await supabase
+                .from('usuarios')
+                .select('*')
+                .eq('email', email)
+                .single();
+
+            if (error || !user) {
+                window.mostrarError('Usuario no encontrado o correo incorrecto.');
+                return;
+            }
+
+            // 2. Verificar contraseña con bcryptjs
+            const passwordCorrecto = dcodeIO.bcrypt.compareSync(password, user.password);
+
+            if (passwordCorrecto) {
+                // Guardar en localStorage para mantener sesión
+                localStorage.setItem('sessionUser', JSON.stringify({
+                    id_usuario: user.id_usuario,
+                    email: user.email,
+                    nombre: user.nombre,
+                    tipo_usuario: user.tipo_usuario
+                }));
+                window.location.reload();
+            } else {
+                window.mostrarError('Contraseña incorrecta.');
+            }
+        });
+    </script>
+</body>
+
+</html>

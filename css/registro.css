@@ -1,0 +1,13 @@
+/* Hereda todo el visual de login.css para mantener la interfaz */
+@import url('login.css');
+
+/* Estilos exclusivos de registro */
+.contenedor-registro .input-group {
+    display: flex;
+    gap: 5px;
+}
+
+.contenedor-registro .input-group input {
+    flex: 1;
+    margin-bottom: 15px;
+}

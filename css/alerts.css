@@ -1,0 +1,43 @@
+/* --- CONTENEDOR DE ERRORES  --- */
+.error-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+
+    background: #111;
+    border-left: 4px solid #ff1a1a;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+
+    z-index: 9999;
+    max-width: 280px;
+
+    font-size: 14px;
+}
+
+/* oculto */
+.hidden {
+    display: none;
+}
+
+/* texto */
+.error-content p {
+    margin: 0;
+    color: #fff;
+}
+
+/* botón cerrar pequeño */
+.error-close-btn {
+    background: transparent;
+    border: none;
+    color: #ff1a1a;
+    font-size: 18px;
+    cursor: pointer;
+}

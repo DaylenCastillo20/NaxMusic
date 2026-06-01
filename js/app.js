@@ -1,118 +1,97 @@
-function cargarContenido(opcion) {
-
+async function cargarContenido(opcion) {
     const contenido = document.getElementById("contenido");
+    setSidebarCollapsed(true);
 
-    // DASHBOARD
-    if (opcion === "dashboard") {
-        contenido.innerHTML = `
-            <h1>Bienvenido a NaxMusic</h1>
-            <p>Selecciona una opción del menú</p>
-        `;
-    }
-
-    // SERVICIOS
-    if (opcion === "servicios") {
-        contenido.innerHTML = `
-            <h1>Servicios</h1>
-            <p>Lista de servicios disponibles</p>
-        `;
-    }
-
-    // COTIZACIONES
-    if (opcion === "cotizaciones") {
-        contenido.innerHTML = `
-            <h1>Cotizaciones</h1>
-            <p>Genera tu cotización aquí</p>
-        `;
-    }
-
-    // CARRITO
-    if (opcion === "carrito") {
-        contenido.innerHTML = `
-            <h1>Carrito</h1>
-            <p>Productos agregados</p>
-        `;
-    }
-
-    // LOGIN (IMPORTANTE)
-    if (opcion === "login") {
-        
-        const contenido = document.getElementById("contenido");
-        //  AGREGA EL FONDO
+    // Lógica especial de estilos por sección
+    if (opcion === 'login' || opcion === 'registro') {
         contenido.classList.add("fondo-login");
-        contenido.innerHTML = `
-            <div class="contenedor contenedor-registro">
-
-                <img src="img/logo.jpeg" class="logo-registro">
-
-                <h2>Iniciar Sesión</h2>
-
-                <p class="subtexto">
-                    Bienvenido a <span>NaxMusic</span>
-                </p>
-
-                <form action="controllers/login_controller.php" method="POST">
-
-                    <input type="email" name="email" placeholder="Correo electronico" required>
-
-                    <input type="password" name="password" placeholder="Contraseña" required>
-
-                    <button type="submit">Ingresar</button>
-
-                </form>
-
-                <p class="texto-login">
-                    ¿No tienes cuenta?
-                    <a href="#" onclick="cargarContenido('registro')">Registrarse</a>
-                </p>
-
-            </div>
-        `;
+    } else {
+        contenido.classList.remove("fondo-login");
     }
 
+    // Enrutamiento dinámico para cotizaciones
+    if (opcion === 'cotizaciones') {
+        if (window.userRole === 'Administrador' || window.userRole === 'Admin') {
+            opcion = 'gestion_cotizaciones';
 
-    // REGISTRO
-    if (opcion === "registro") {
-
-        const contenido = document.getElementById("contenido");
-
-        // activar fondo
-        contenido.classList.add("fondo-login");
-
-        contenido.innerHTML = `
-            <div class="contenedor contenedor-registro">
-
-                <img src="img/logo.jpeg" class="logo-registro">
-
-                <h2>Crear cuenta</h2>
-
-                <p class="subtexto">
-                    Unete a <span>NaxMusic</span>
-                </p>
-
-                <form action="controllers/registro_controller.php" method="POST">
-
-                    <input type="text" name="nombre" placeholder="Nombre completo" required>
-
-                    <input type="email" name="email" placeholder="Correo electronico" required>
-
-                    <input type="password" name="password" placeholder="Contraseña" required>
-
-                    <input type="password" name="confirmar" placeholder="Confirmar contraseña" required>
-
-                    <button type="submit">Registrarse</button>
-
-                </form>
-
-                <p class="texto-login">
-                    ¿Ya tienes cuenta?
-                    <a href="#" onclick="cargarContenido('login')">Iniciar sesión</a>
-                </p>
-
-            </div>
-        `;
+        }
     }
 
+    try {
+        // Hacemos el fetch a la vista correspondiente en la carpeta views/
+        const response = await fetch(`views/${opcion}.html`);
+        if (!response.ok) {
+            throw new Error(`Vista ${opcion} no encontrada`);
+        }
+
+        const html = await response.text();
+
+        // Usamos DOMParser para extraer el contenido sin romper el layout
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Buscamos si la vista tiene el contenedor principal
+        const contenedorRegistro = doc.querySelector('.contenedor-registro');
+
+        // Si es login/registro, inyectamos el contenedor. Si es otra (ej. dashboard), inyectamos el body.
+        contenido.innerHTML = contenedorRegistro ? contenedorRegistro.outerHTML : doc.body.innerHTML;
+
+        // IMPORTANTE: Re-ejecutar dinámicamente los scripts que venían en la vista inyectada
+        const scripts = doc.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            // Copiar los atributos relevantes
+            if (oldScript.type) newScript.type = oldScript.type;
+            if (oldScript.src) newScript.src = oldScript.src;
+            if (oldScript.innerHTML) newScript.innerHTML = oldScript.innerHTML;
+
+            // Adjuntar al DOM para que el navegador lo ejecute (se usa setTimeout para evitar bloqueos)
+            document.body.appendChild(newScript);
+        });
+
+    } catch (error) {
+        console.error("Error cargando la vista:", error);
+        mostrarError("Ocurrió un error cargando la sección.");
+    }
+}
+
+function setSidebarCollapsed(collapsed) {
+    const appContainer = document.querySelector('.app-container');
+    const toggleButtons = document.querySelectorAll('[data-sidebar-toggle]');
+
+    if (!appContainer) return;
+
+    appContainer.classList.toggle('sidebar-collapsed', collapsed);
+    localStorage.setItem('naxSidebarCollapsed', collapsed ? '1' : '0');
+
+    toggleButtons.forEach((button) => {
+        button.setAttribute('aria-expanded', String(!collapsed));
+        button.setAttribute('title', collapsed ? 'Mostrar menu' : 'Ocultar menu');
+    });
+}
+
+function initSidebarToggle() {
+    const storedState = localStorage.getItem('naxSidebarCollapsed');
+    const savedState = storedState === null
+        ? window.matchMedia('(max-width: 768px)').matches
+        : storedState === '1';
+    setSidebarCollapsed(savedState);
+
+    document.addEventListener('click', (event) => {
+        const toggle = event.target.closest('[data-sidebar-toggle]');
+        const appContainer = document.querySelector('.app-container');
+
+        if (!toggle && appContainer && event.target === appContainer && window.matchMedia('(max-width: 768px)').matches) {
+            setSidebarCollapsed(true);
+            return;
+        }
+
+        if (!toggle) return;
+
+        event.preventDefault();
+        const isCollapsed = appContainer?.classList.contains('sidebar-collapsed') ?? false;
+        setSidebarCollapsed(!isCollapsed);
+    });
 }
 
 function mostrarError(mensaje) {
@@ -131,13 +110,15 @@ function mostrarError(mensaje) {
 }
 
 // 2. DETECTOR AUTOMÁTICO DE ERRORES EN LA URL
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    initSidebarToggle();
+
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     if (urlParams.get('error') === 'login') {
 
-        cargarContenido('login'); 
-        
+        cargarContenido('login');
+
         setTimeout(() => {
             mostrarError("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.");
         }, 300);
