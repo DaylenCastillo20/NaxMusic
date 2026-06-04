@@ -1,29 +1,40 @@
+/* ========================================= */
+/* ========= FOOTER — Premium Dark ========= */
+/* ========================================= */
+
+/* Structural properties for body flex layout */
 .footer {
-    background-color: #0b0b0e;
-    color: #aaaaaa;
-    text-align: center;
-    padding: 30px 20px;
     margin-top: auto;
     width: 100%;
     flex-shrink: 0;
-    border-top: 1px solid #1f1f27;
 }
 
-.footer p {
-    margin: 5px 0;
-    color: #ffffff;
-    font-size: 16px;
+/* Social icon hover micro-animation */
+.social-icon-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.25);
 }
 
-.footer .footer-sub {
-    color: #ff0055;
-    font-size: 14px;
-    font-weight: 500;
+/* Footer link underline animation */
+.footer a {
+    text-decoration: none;
 }
 
-.footer small {
-    display: block;
-    margin-top: 15px;
-    font-size: 12px;
-    color: #666666;
+/* Responsive: stack contact info on small screens */
+@media (max-width: 768px) {
+    .footer .grid {
+        text-align: center;
+    }
+
+    .footer .grid > div {
+        align-items: center;
+    }
+
+    .footer .grid > div:first-child {
+        align-items: center;
+    }
+
+    .footer .grid > div:first-child .flex.gap-3 {
+        justify-content: center;
+    }
 }

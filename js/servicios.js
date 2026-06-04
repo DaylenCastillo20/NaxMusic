@@ -1,689 +1,418 @@
+/**
+ * Lógica de la Vista: Servicios (Optimizada para Enrutadores SPA)
+ * Maneja exclusivamente la manipulación del DOM, filtros y eventos.
+ */
+
 window.serviciosSeleccionados = window.serviciosSeleccionados || [];
-var serviciosSeleccionados = window.serviciosSeleccionados;
 
-(function iniciarVistaServicios() {
-    const shell = document.getElementById('servicesShell');
-    if (!shell || shell.dataset.initialized === 'true') return;
-    shell.dataset.initialized = 'true';
+// Inicialización segura para entornos SPA
+(function bootstrapServiciosView() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicializarCatalogo, { once: true });
+    } else {
+        inicializarCatalogo();
+    }
+})();
 
-    const servicios = [
-        crearServicio('sonido-pro', 'Sonido', 'Sistema de Sonido Profesional', 'Audio de alta calidad para eventos medianos y grandes.', ['Hasta 500 pers.', 'Incluye transporte'], ['Bodas', 'Fiestas', 'Empresarial'], 450, 98, 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=900&q=80'),
-        crearServicio('led-completa', 'Iluminacion', 'Iluminacion LED Completa', 'Luces LED inteligentes, efectos RGB y ambientacion profesional.', ['Efectos RGB', 'Programacion'], ['Bodas', 'Fiestas', 'Galas'], 600, 95, 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=900&q=80'),
-        crearServicio('dj-pro', 'DJ', 'DJ Profesional', 'DJ con experiencia para todo tipo de eventos y generos musicales.', ['+5 anos exp.', 'Playlist personalizada'], ['Bodas', 'Fiestas', 'Empresarial'], 350, 100, 'https://images.unsplash.com/photo-1571266028243-d220c9c3a26b?auto=format&fit=crop&w=900&q=80'),
-        crearServicio('line-array', 'Sonido', 'Sonido Line Array', 'Potencia y claridad para eventos masivos y conciertos en vivo.', ['Alta potencia', 'Cobertura 180'], ['Conciertos', 'Empresarial'], 850, 89, 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80'),
-        crearServicio('luces-robotizadas', 'Iluminacion', 'Luces Robotizadas', 'Iluminacion dinamica con robots moviles y efectos avanzados.', ['Movimientos', 'Sincronizacion'], ['Conciertos', 'Fiestas', 'Galas'], 750, 87, 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=900&q=80'),
-        crearServicio('dj-animacion', 'DJ', 'DJ + Animacion', 'DJ + animador para mantener la energia durante todo el evento.', ['Interaccion', 'Microfono inalambrico'], ['Bodas', 'Fiestas'], 500, 92, 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80')
-    ];
+let serviciosGlobales = [];
+let tabActivo = 'Todos';
 
-    normalizarCarritoExistente();
+// Función para obtener referencias FRESCAS del DOM en cada renderizado (Evita referencias null/huérfanas)
+function obtenerElementosDOM() {
+    return {
+        grid: document.getElementById('contenedor-servicios'),
+        precioMaximo: document.getElementById('precioMaximo'),
+        precioActual: document.getElementById('precioActual'),
+        ordenServicios: document.getElementById('ordenServicios'),
+        limpiarFiltros: document.getElementById('limpiarFiltros'),
+        shell: document.getElementById('servicesShell')
+    };
+}
 
-    const grid = document.getElementById('servicesGrid');
-    const listaCarrito = document.getElementById('listaCarrito');
-    const contadorCarrito = document.getElementById('contadorCarrito');
-    const tituloCarrito = document.getElementById('tituloCarrito');
-    const subtotalCarrito = document.getElementById('subtotalCarrito');
-    const descuentoCarrito = document.getElementById('descuentoCarrito');
-    const totalCarrito = document.getElementById('totalCarrito');
-    const botonIrCarrito = document.getElementById('irAlCarrito');
-    const botonVaciar = document.getElementById('vaciarCarrito');
-    const botonVolver = document.getElementById('volverCatalogo');
-    const formularioEvento = document.getElementById('formInformacionEvento');
-    const mensajeEvento = document.getElementById('mensajeEvento');
-    const precioMaximo = document.getElementById('precioMaximo');
-    const precioActual = document.getElementById('precioActual');
-    const ordenServicios = document.getElementById('ordenServicios');
-    const limpiarFiltros = document.getElementById('limpiarFiltros');
-    const authQuoteModal = document.getElementById('authQuoteModal');
-    const authModalContent = document.getElementById('authModalContent');
-    const cerrarAuthModal = document.getElementById('cerrarAuthModal');
+async function inicializarCatalogo() {
+    const dom = obtenerElementosDOM();
 
-    let tabActivo = 'Todos';
-    let supabaseClientPromise = null;
+    // Si el enrutador SPA aún no ha inyectado el HTML, esperar 50ms y reintentar
+    if (!dom.shell) {
+        setTimeout(inicializarCatalogo, 50);
+        return;
+    }
 
-    renderizarCatalogo();
-    renderizarCarrito();
+    // Evitar duplicar listeners en la misma navegación
+    if (dom.shell.dataset.initialized === 'true') return;
+    dom.shell.dataset.initialized = 'true';
 
-    shell.querySelectorAll('.services-tab').forEach((tab) => {
+    mostrarEstadoCatalogo('Cargando servicios...');
+
+    try {
+        // ESPERA ACTIVA: Dar hasta 1 segundo para que el controlador se registre en el objeto window global
+        let intentos = 0;
+        while (typeof window.ServicioController === 'undefined' && intentos < 20) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            intentos++;
+        }
+
+        if (typeof window.ServicioController === 'undefined') {
+            throw new Error("ServicioController no se encontró en el ámbito global 'window'.");
+        }
+
+        // Solicitar los datos limpios y normalizados al controlador
+        serviciosGlobales = await window.ServicioController.obtenerServicios();
+
+        if (!serviciosGlobales || serviciosGlobales.length === 0) {
+            mostrarEstadoCatalogo('No hay servicios disponibles en este momento.');
+            return;
+        }
+
+        configurarEventosFiltros();
+        renderizarCarrito();
+        actualizarVista();
+
+    } catch (error) {
+        console.error('Error al inicializar el catálogo:', error);
+        mostrarEstadoCatalogo('No fue posible cargar los servicios. Revisa la consola.', 'error');
+    }
+}
+
+function actualizarVista() {
+    const serviciosFiltrados = aplicarFiltros(serviciosGlobales);
+
+    if (serviciosFiltrados.length === 0) {
+        mostrarEstadoCatalogo('No se encontraron servicios con los filtros actuales.');
+    } else {
+        renderizarTarjetas(serviciosFiltrados);
+    }
+}
+
+function renderizarTarjetas(servicios) {
+    const dom = obtenerElementosDOM();
+    if (!dom.grid) return;
+
+    dom.grid.innerHTML = servicios.map(servicio => `
+<div class="service-card">
+    <div class="service-media">
+        <img src="${servicio.imagen_url}" alt="${servicio.nombre}">
+        <button onclick="agregarAlCarrito('${servicio.id}')" class="service-favorite" title="Añadir al carrito">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px; margin: auto;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+        </button>
+        <span class="service-category">${servicio.categoria}</span>
+    </div>
+
+    <div class="service-body">
+        <h3>${servicio.nombre}</h3>
+        <p class="service-description">${servicio.descripcion}</p>
+        
+        <div class="service-tags">
+            <span>${servicio.categoria === 'DJ' ? '+5 años exp.' : 'Hasta 500 pers.'}</span>
+            <span>${servicio.categoria === 'DJ' ? 'Playlist personalizada' : 'Incluye transporte'}</span>
+        </div>
+
+        <div class="service-footer">
+            <div class="service-price">
+                Desde <strong>$${servicio.precio.toLocaleString()}</strong>
+            </div>
+            <button onclick="agregarAlCarrito('${servicio.id}')" class="service-add">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+                Añadir
+            </button>
+        </div>
+    </div>
+</div>
+    `).join('');
+}
+
+function aplicarFiltros(servicios) {
+    const dom = obtenerElementosDOM();
+    const categoriasSeleccionadas = Array.from(document.querySelectorAll('input[name="categoria"]:checked')).map(cb => cb.value);
+    const idealesSeleccionados = Array.from(document.querySelectorAll('input[name="ideal"]:checked')).map(cb => cb.value);
+    const precioLimite = dom.precioMaximo ? Number(dom.precioMaximo.value) : Infinity;
+
+    return servicios
+        .filter(servicio => tabActivo === 'Todos' || servicio.categoria === tabActivo)
+        .filter(servicio => categoriasSeleccionadas.length === 0 || categoriasSeleccionadas.includes(servicio.categoria))
+        .filter(servicio => idealesSeleccionados.length === 0 || idealesSeleccionados.some(ideal => servicio.ideal_para.includes(ideal)))
+        .filter(servicio => servicio.precio <= precioLimite)
+        .sort((a, b) => {
+            if (dom.ordenServicios && dom.ordenServicios.value === 'precio-asc') return a.precio - b.precio;
+            if (dom.ordenServicios && dom.ordenServicios.value === 'precio-desc') return b.precio - a.precio;
+            return b.popularidad - a.popularidad;
+        });
+}
+
+function configurarEventosFiltros() {
+    const dom = obtenerElementosDOM();
+    if (!dom.shell) return;
+
+    // Limpiar listeners antiguos clonando los nodos (Vital en SPAs para no duplicar triggers)
+    dom.shell.querySelectorAll('.services-tab').forEach(tab => {
+        tab.replaceWith(tab.cloneNode(true));
+    });
+
+    // Re-vincular los eventos en los botones nuevos limpios
+    obtenerElementosDOM().shell.querySelectorAll('.services-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             tabActivo = tab.dataset.tab;
-            shell.querySelectorAll('.services-tab').forEach((item) => item.classList.remove('is-active'));
+            obtenerElementosDOM().shell.querySelectorAll('.services-tab').forEach(item => item.classList.remove('is-active'));
             tab.classList.add('is-active');
-            renderizarCatalogo();
+            actualizarVista();
         });
     });
 
-    shell.querySelectorAll('input[name="categoria"], input[name="ideal"]').forEach((input) => {
-        input.addEventListener('change', renderizarCatalogo);
-    });
-
-    precioMaximo.addEventListener('input', () => {
-        precioActual.textContent = formatearMoneda(Number(precioMaximo.value));
-        renderizarCatalogo();
-    });
-
-    ordenServicios.addEventListener('change', renderizarCatalogo);
-
-    limpiarFiltros.addEventListener('click', () => {
-        precioMaximo.value = 2500;
-        precioActual.textContent = '$2,500';
-        shell.querySelectorAll('input[name="categoria"], input[name="ideal"]').forEach((input) => {
-            input.checked = false;
-        });
-        renderizarCatalogo();
-    });
-
-    grid.addEventListener('click', (event) => {
-        const boton = event.target.closest('[data-add-service]');
-        if (!boton) return;
-
-        const servicio = servicios.find((item) => item.id_servicio === boton.dataset.addService);
-        if (!servicio) return;
-
-        agregarServicioAlCarrito(servicio);
-        renderizarCarrito();
-    });
-
-    listaCarrito.addEventListener('click', (event) => {
-        const boton = event.target.closest('[data-remove-service]');
-        if (!boton) return;
-
-        const index = serviciosSeleccionados.findIndex((item) => item.id_servicio === boton.dataset.removeService);
-        if (index >= 0) {
-            serviciosSeleccionados.splice(index, 1);
-            renderizarCarrito();
-        }
-    });
-
-    botonVaciar.addEventListener('click', () => {
-        serviciosSeleccionados.splice(0, serviciosSeleccionados.length);
-        renderizarCarrito();
-    });
-
-    botonIrCarrito.addEventListener('click', async () => {
-        if (!serviciosSeleccionados.length) return;
-
-        const usuarioActivo = await verificarUsuarioActivo();
-        if (!usuarioActivo) {
-            abrirAuthModal('login');
-            return;
-        }
-
-        avanzarAFormularioEvento();
-    });
-
-    botonVolver.addEventListener('click', () => {
-        shell.classList.remove('is-checkout');
-        actualizarEstadoCarrito();
-        limpiarMensajeEvento();
-    });
-
-    formularioEvento.addEventListener('submit', (event) => {
-        event.preventDefault();
-        limpiarMensajeEvento();
-
-        if (!formularioEvento.checkValidity()) {
-            formularioEvento.reportValidity();
-            mostrarMensajeEvento('Completa todos los campos obligatorios.', 'error');
-            return;
-        }
-
-        if (!serviciosSeleccionados.length) {
-            mostrarMensajeEvento('Agrega al menos un servicio antes de generar la cotizacion.', 'error');
-            return;
-        }
-
-        const payload = prepararCotizacionPayload(formularioEvento);
-        window.ultimaCotizacionPreparada = payload;
-        enviarCotizacionPendiente(payload);
-        mostrarMensajeEvento('Cotizacion lista para enviar al controlador.', 'success');
-    });
-
-    if (authQuoteModal && authModalContent && cerrarAuthModal) {
-        cerrarAuthModal.addEventListener('click', cerrarModalAutenticacion);
-
-        authQuoteModal.addEventListener('click', (event) => {
-            if (event.target.closest('[data-auth-close]')) {
-                cerrarModalAutenticacion();
-            }
-        });
-
-        authModalContent.addEventListener('click', (event) => {
-            const switchButton = event.target.closest('[data-auth-mode]');
-            if (!switchButton) return;
-
-            abrirAuthModal(switchButton.dataset.authMode);
-        });
-
-        authModalContent.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const form = event.target.closest('[data-auth-form]');
-            if (!form) return;
-
-            if (form.dataset.authForm === 'login') {
-                await enviarLoginModal(form);
-                return;
-            }
-
-            await enviarRegistroModal(form);
-        });
-
-        authModalContent.addEventListener('input', (event) => {
-            if (event.target.matches('input[name="telefono"]')) {
-                event.target.value = event.target.value.replace(/[^0-9]/g, '');
-            }
+    if (dom.precioMaximo) {
+        dom.precioMaximo.addEventListener('input', (e) => {
+            const actualDom = obtenerElementosDOM();
+            if (actualDom.precioActual) actualDom.precioActual.textContent = `$${Number(e.target.value).toLocaleString()}`;
+            actualizarVista();
         });
     }
 
-    function renderizarCatalogo() {
-        const serviciosFiltrados = obtenerServiciosFiltrados();
+    document.querySelectorAll('input[name="categoria"], input[name="ideal"]').forEach(cb => {
+        cb.addEventListener('change', actualizarVista);
+    });
 
-        grid.innerHTML = serviciosFiltrados.map((servicio) => `
-            <article class="service-card">
-                <div class="service-media">
-                    <img src="${servicio.imagen}" alt="${servicio.titulo}" onerror="this.onerror=null;this.src='${obtenerImagenFallback()}';">
-                    <button class="service-favorite" type="button" aria-label="Guardar ${servicio.titulo}">♡</button>
-                    <span class="service-category">${servicio.categoria}</span>
+    if (dom.ordenServicios) {
+        dom.ordenServicios.addEventListener('change', actualizarVista);
+    }
+
+    if (dom.limpiarFiltros) {
+        dom.limpiarFiltros.addEventListener('click', () => {
+            tabActivo = 'Todos';
+            const freshDom = obtenerElementosDOM();
+
+            freshDom.shell.querySelectorAll('.services-tab').forEach(item => item.classList.remove('is-active'));
+            freshDom.shell.querySelector('[data-tab="Todos"]')?.classList.add('is-active');
+
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+            if (freshDom.precioMaximo) {
+                freshDom.precioMaximo.value = freshDom.precioMaximo.max;
+                if (freshDom.precioActual) freshDom.precioActual.textContent = `$${Number(freshDom.precioMaximo.value).toLocaleString()}`;
+            }
+
+            if (freshDom.ordenServicios) freshDom.ordenServicios.value = 'popular';
+
+            actualizarVista();
+        });
+    }
+}
+
+function mostrarEstadoCatalogo(texto, tipo = 'empty') {
+    const dom = obtenerElementosDOM();
+    if (!dom.grid) return;
+    dom.grid.innerHTML = `
+        <div class="col-span-full flex min-h-[320px] items-center justify-center rounded-2xl border border-white/10 bg-[#111317] p-8 text-center shadow-2xl">
+            <p class="${tipo === 'error' ? 'text-red-400' : 'text-gray-400'} text-base font-semibold">${texto}</p>
+        </div>
+    `;
+}
+
+// -----------------------------------------------------
+// Lógica del Carrito Global
+// -----------------------------------------------------
+window.agregarAlCarrito = function (idServicio) {
+    const servicio = serviciosGlobales.find(s => String(s.id) === String(idServicio));
+    if (!servicio) return;
+
+    const existe = window.serviciosSeleccionados.find(s => String(s.id) === String(idServicio));
+    if (existe) {
+        existe.cantidad += 1;
+    } else {
+        window.serviciosSeleccionados.push({ ...servicio, cantidad: 1 });
+    }
+
+    renderizarCarrito();
+};
+
+function renderizarCarritoLegacy() {
+    const listaCarrito = document.getElementById('listaCarrito');
+    const contadorCarrito = document.getElementById('contadorCarrito');
+    const subtotalCarrito = document.getElementById('subtotalCarrito');
+    const totalCarrito = document.getElementById('totalCarrito');
+    const botonSolicitar = document.getElementById('irAlCarrito');
+
+    if (!listaCarrito) return;
+
+    let total = 0;
+    let cantidadTotal = 0;
+
+    listaCarrito.innerHTML = window.serviciosSeleccionados.map(item => {
+        const itemTotal = item.precio * item.cantidad;
+        total += itemTotal;
+        cantidadTotal += item.cantidad;
+
+        return `
+        <div class="flex justify-between items-center p-2 border-b border-gray-800 text-sm text-gray-300 mb-2">
+            <div>
+                <h4 class="font-bold text-white">${item.nombre}</h4>
+                <div class="text-xs text-gray-500">$${item.precio.toLocaleString()} x ${item.cantidad}</div>
+            </div>
+            <button onclick="eliminarDelCarrito('${item.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold px-2">✕</button>
+        </div>
+        `;
+    }).join('');
+
+    if (contadorCarrito) contadorCarrito.textContent = cantidadTotal;
+    if (subtotalCarrito) subtotalCarrito.textContent = `$${total.toLocaleString()}`;
+    if (totalCarrito) totalCarrito.textContent = `$${total.toLocaleString()}`;
+
+    if (botonSolicitar) {
+        botonSolicitar.disabled = window.serviciosSeleccionados.length === 0;
+    }
+}
+
+function renderizarCarrito() {
+    const listaCarrito = document.getElementById('listaCarrito');
+    const contadorCarrito = document.getElementById('contadorCarrito');
+    const subtotalCarrito = document.getElementById('subtotalCarrito');
+    const totalCarrito = document.getElementById('totalCarrito');
+    const botonSolicitar = document.getElementById('irAlCarrito');
+
+    if (!listaCarrito) return;
+
+    let total = 0;
+    let cantidadTotal = 0;
+
+    if (window.serviciosSeleccionados.length === 0) {
+        listaCarrito.innerHTML = `
+            <div class="cart-empty rounded-xl border border-white/5 bg-white/[0.03] px-4 py-5 text-sm text-gray-400">
+                Aun no has agregado servicios.
+            </div>
+        `;
+    } else {
+        listaCarrito.innerHTML = window.serviciosSeleccionados.map(item => {
+            const cantidad = Number(item.cantidad || 1);
+            const precio = Number(item.precio || 0);
+            const itemTotal = precio * cantidad;
+            total += itemTotal;
+            cantidadTotal += cantidad;
+
+            return `
+            <div class="cart-item group rounded-xl border border-white/5 bg-[#171a20]/80 p-3 text-sm text-gray-300 transition-all duration-200 hover:border-red-500/20 hover:bg-white/[0.06]">
+                <div class="min-w-0">
+                    <h4 class="truncate font-bold text-white">${item.nombre}</h4>
+                    <div class="mt-1 text-xs text-gray-500">$${precio.toLocaleString()} x ${cantidad}</div>
+                    <div class="mt-2 text-xs font-semibold text-gray-300">Subtotal: $${itemTotal.toLocaleString()}</div>
                 </div>
-                <div class="service-body">
-                    <h3>${servicio.titulo}</h3>
-                    <p class="service-description">${servicio.descripcion}</p>
-                    <div class="service-tags">${servicio.caracteristicas.map((tag) => `<span>${tag}</span>`).join('')}</div>
-                    <div class="service-footer">
-                        <div class="service-price">Desde <strong>${formatearMoneda(servicio.precio)}</strong></div>
-                        <button class="service-add" type="button" data-add-service="${servicio.id_servicio}">
-                            ${iconoCarrito()} Añadir
-                        </button>
-                    </div>
-                </div>
-            </article>
-        `).join('');
+                <button type="button" data-action="eliminar-carrito" data-id="${item.id}" class="cart-remove inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-gray-400 transition-all duration-200 hover:border-red-500/40 hover:bg-red-600/10 hover:text-red-400 active:scale-95" aria-label="Eliminar ${item.nombre}">
+                    <svg class="trash-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.9" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.35 9m-4.78 0L9.26 9m9.97-3.21c.34.05.67.1 1 .16m-1-.16L18.16 19.67A2.25 2.25 0 0 1 15.92 21H8.08a2.25 2.25 0 0 1-2.24-2.08L4.77 5.79m14.46 0a48.1 48.1 0 0 0-3.48-.33m-11 .33c-.34.05-.67.1-1 .16m1-.16a48.1 48.1 0 0 1 3.48-.33m7.52 0V4.54c0-1.18-.91-2.17-2.09-2.2a51.96 51.96 0 0 0-3.32 0c-1.18.03-2.09 1.02-2.09 2.2v.92m7.52 0a48.67 48.67 0 0 0-7.52 0" />
+                    </svg>
+                </button>
+            </div>
+            `;
+        }).join('');
     }
 
-    function obtenerServiciosFiltrados() {
-        const categoriasSeleccionadas = obtenerChecks('categoria');
-        const idealesSeleccionados = obtenerChecks('ideal');
-        const precioLimite = Number(precioMaximo.value);
+    if (contadorCarrito) contadorCarrito.textContent = cantidadTotal;
+    if (subtotalCarrito) subtotalCarrito.textContent = `$${total.toLocaleString()}`;
+    if (totalCarrito) totalCarrito.textContent = `$${total.toLocaleString()}`;
 
-        return servicios
-            .filter((servicio) => tabActivo === 'Todos' || servicio.categoria === tabActivo)
-            .filter((servicio) => !categoriasSeleccionadas.length || categoriasSeleccionadas.includes(servicio.categoria))
-            .filter((servicio) => !idealesSeleccionados.length || idealesSeleccionados.some((ideal) => servicio.ideal.includes(ideal)))
-            .filter((servicio) => servicio.precio <= precioLimite)
-            .sort((a, b) => {
-                if (ordenServicios.value === 'precio-asc') return a.precio - b.precio;
-                if (ordenServicios.value === 'precio-desc') return b.precio - a.precio;
-                return b.popularidad - a.popularidad;
-            });
-    }
+    actualizarEstadoBotonCotizacion(botonSolicitar, total);
+}
 
-    function renderizarCarrito() {
-        const cantidadTotal = calcularCantidadTotal();
-        actualizarTituloCarrito(cantidadTotal);
-        botonIrCarrito.disabled = cantidadTotal === 0;
+function actualizarEstadoBotonCotizacion(botonSolicitar, total = 0) {
+    if (!botonSolicitar) return;
 
-        if (!cantidadTotal) {
-            listaCarrito.innerHTML = '<p class="cart-empty">Selecciona servicios del catalogo para preparar tu cotizacion.</p>';
+    const carritoVacio = window.serviciosSeleccionados.length === 0;
+    botonSolicitar.disabled = carritoVacio;
+    botonSolicitar.dataset.total = String(total);
+    botonSolicitar.textContent = carritoVacio ? 'Solicitar Cotizacion' : 'Generar Cotizacion ->';
+
+    botonSolicitar.classList.toggle('opacity-50', carritoVacio);
+    botonSolicitar.classList.toggle('cursor-not-allowed', carritoVacio);
+    botonSolicitar.classList.toggle('bg-red-600', !carritoVacio);
+    botonSolicitar.classList.toggle('hover:bg-red-700', !carritoVacio);
+    botonSolicitar.classList.toggle('cursor-pointer', !carritoVacio);
+    botonSolicitar.classList.toggle('active:scale-95', !carritoVacio);
+    botonSolicitar.classList.toggle('shadow-lg', !carritoVacio);
+    botonSolicitar.classList.toggle('shadow-red-600/30', !carritoVacio);
+}
+
+window.eliminarDelCarrito = function (idServicio) {
+    window.serviciosSeleccionados = window.serviciosSeleccionados.filter(s => String(s.id) !== String(idServicio));
+    renderizarCarrito();
+};
+
+function obtenerTotalCarrito() {
+    return window.serviciosSeleccionados.reduce((total, servicio) => {
+        return total + (Number(servicio.precio) * Number(servicio.cantidad || 1));
+    }, 0);
+}
+
+function guardarCotizacionEnStorage(total) {
+    const servicios = window.serviciosSeleccionados.map(servicio => ({
+        ...servicio,
+        id_servicio: servicio.id_servicio || servicio.id,
+        cantidad: Number(servicio.cantidad || 1),
+        precio: Number(servicio.precio || 0),
+        subtotal: Number(servicio.precio || 0) * Number(servicio.cantidad || 1)
+    }));
+
+    const payload = {
+        servicios,
+        total,
+        creadoEn: new Date().toISOString()
+    };
+
+    sessionStorage.setItem('serviciosSeleccionados', JSON.stringify(servicios));
+    sessionStorage.setItem('cotizacionTotal', JSON.stringify(total));
+    sessionStorage.setItem('cotizacionServiciosEvento', JSON.stringify(payload));
+}
+
+function enviarCotizacionSeleccionada() {
+    if (window.serviciosSeleccionados.length === 0) return;
+
+    const total = obtenerTotalCarrito();
+    guardarCotizacionEnStorage(total);
+
+    const sessionUser = localStorage.getItem('sessionUser');
+
+    if (sessionUser) {
+        if (typeof window.cargarContenido === 'function') {
+            window.cargarContenido('formulario_eventos');
         } else {
-            listaCarrito.innerHTML = serviciosSeleccionados.map((servicio) => `
-                <article class="cart-item">
-                    <img src="${servicio.imagen}" alt="${servicio.titulo}" onerror="this.onerror=null;this.src='${obtenerImagenFallback()}';">
-                    <div>
-                        <h4>${servicio.titulo} x${servicio.cantidad}</h4>
-                        <strong>${formatearMoneda(servicio.precio * servicio.cantidad)}</strong>
-                    </div>
-                    <button class="cart-remove" type="button" data-remove-service="${servicio.id_servicio}" aria-label="Eliminar ${servicio.titulo}">
-                        ${iconoPapelera()}
-                    </button>
-                </article>
-            `).join('');
+            window.location.assign('index.html');
         }
-
-        const subtotal = calcularSubtotal();
-        const descuento = calcularDescuento(subtotal);
-        const total = subtotal - descuento;
-
-        subtotalCarrito.textContent = formatearMoneda(subtotal);
-        descuentoCarrito.textContent = `-${formatearMoneda(descuento)}`;
-        totalCarrito.textContent = formatearMoneda(total);
+    } else {
+        localStorage.setItem('redirectAfterLogin', 'formulario_eventos');
+        if (typeof window.cargarContenido === 'function') {
+            window.cargarContenido('login');
+            if (typeof window.mostrarError === 'function') {
+                window.mostrarError('Debes iniciar sesión para completar tu cotización');
+            }
+        } else {
+            window.location.assign('index.html');
+        }
     }
+}
 
-    function actualizarEstadoCarrito() {
-        renderizarCarrito();
-    }
+// Delegación segura del evento click para limpiar el carrito en SPAs
+if (!window.__serviciosCarritoDelegationBound) {
+    window.__serviciosCarritoDelegationBound = true;
 
-    function avanzarAFormularioEvento() {
-        shell.classList.add('is-checkout');
-        actualizarEstadoCarrito();
-        shell.scrollTop = 0;
-    }
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!target?.closest) return;
 
-    function actualizarTituloCarrito(cantidadTotal) {
-        if (shell.classList.contains('is-checkout')) {
-            tituloCarrito.textContent = 'Resumen de tu cotizacion';
+        const botonEliminar = target.closest('[data-action="eliminar-carrito"]');
+        if (botonEliminar) {
+            window.eliminarDelCarrito(botonEliminar.dataset.id);
             return;
         }
 
-        tituloCarrito.innerHTML = `Tu carrito (<span id="contadorCarrito">${cantidadTotal}</span>)`;
-    }
-
-    function prepararCotizacionPayload(form) {
-        const formData = new FormData(form);
-        const subtotal = calcularSubtotal();
-        const descuento = calcularDescuento(subtotal);
-
-        return {
-            evento: {
-                nombre_evento: normalizarTexto(formData.get('nombre_evento')),
-                fecha_evento: normalizarTexto(formData.get('fecha_evento')),
-                hora_evento: normalizarTexto(formData.get('hora_evento')),
-                lugar: normalizarTexto(formData.get('lugar')),
-                cantidad_asistentes: Number(formData.get('cantidad_asistentes')),
-                tipo_evento: normalizarTexto(formData.get('tipo_evento')),
-                descripcion: normalizarTexto(formData.get('descripcion'))
-            },
-            servicios: serviciosSeleccionados.map((servicio) => ({
-                id_servicio: servicio.id_servicio,
-                categoria: servicio.categoria,
-                titulo: servicio.titulo,
-                precio: servicio.precio,
-                cantidad: servicio.cantidad,
-                subtotal: servicio.precio * servicio.cantidad
-            })),
-            totales: {
-                subtotal,
-                descuento,
-                total: subtotal - descuento
-            }
-        };
-    }
-
-    function enviarCotizacionPendiente(payload) {
-        console.log('Payload listo para enviar al controlador MVC:', payload);
-        return payload;
-    }
-
-    async function verificarUsuarioActivo() {
-        const sessionGuardada = leerSesionLocal();
-        if (sessionGuardada) return sessionGuardada;
-
-        try {
-            const supabaseClient = await obtenerSupabaseClient();
-            if (!supabaseClient?.auth?.getSession) return null;
-
-            const { data, error } = await supabaseClient.auth.getSession();
-            if (error || !data?.session?.user) return null;
-
-            const usuario = {
-                id_usuario: data.session.user.id,
-                email: data.session.user.email,
-                nombre: data.session.user.user_metadata?.nombre || data.session.user.email,
-                tipo_usuario: data.session.user.user_metadata?.tipo_usuario || 'Cliente',
-                access_token: data.session.access_token
-            };
-
-            guardarSesionUsuario(usuario);
-            return usuario;
-        } catch (error) {
-            console.warn('No se pudo verificar la sesion de Supabase:', error);
-            return null;
-        }
-    }
-
-    function leerSesionLocal() {
-        const sessionUser = parseStoredJson(localStorage.getItem('sessionUser'));
-        if (sessionUser?.id_usuario || sessionUser?.token || sessionUser?.access_token) {
-            return sessionUser;
-        }
-
-        const idUsuario = localStorage.getItem('id_usuario');
-        const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-        if (!idUsuario && !token) return null;
-
-        return {
-            id_usuario: idUsuario,
-            token,
-            email: localStorage.getItem('email') || '',
-            nombre: localStorage.getItem('nombre') || 'Usuario',
-            tipo_usuario: localStorage.getItem('tipo_usuario') || 'Cliente'
-        };
-    }
-
-    function abrirAuthModal(modo) {
-        if (!authQuoteModal || !authModalContent) return;
-
-        authModalContent.innerHTML = modo === 'registro' ? obtenerRegistroMarkup() : obtenerLoginMarkup();
-        authQuoteModal.classList.add('is-open');
-        authQuoteModal.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('auth-modal-lock');
-
-        const primerCampo = authModalContent.querySelector('input');
-        if (primerCampo) primerCampo.focus();
-    }
-
-    function cerrarModalAutenticacion() {
-        if (!authQuoteModal) return;
-
-        authQuoteModal.classList.remove('is-open');
-        authQuoteModal.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('auth-modal-lock');
-    }
-
-    async function enviarLoginModal(form) {
-        const email = normalizarTexto(form.elements.email.value).toLowerCase();
-        const password = String(form.elements.password.value || '');
-        const botonSubmit = form.querySelector('[type="submit"]');
-
-        setAuthLoading(form, botonSubmit, true);
-        mostrarMensajeAuth(form, '');
-
-        try {
-            const supabaseClient = await obtenerSupabaseClient();
-            const { data: user, error } = await supabaseClient
-                .from('usuarios')
-                .select('*')
-                .eq('email', email)
-                .single();
-
-            if (error || !user) {
-                mostrarMensajeAuth(form, 'Usuario no encontrado o correo incorrecto.');
-                return;
-            }
-
-            await asegurarBcryptDisponible();
-
-            const passwordCorrecto = window.dcodeIO?.bcrypt?.compareSync(password, user.password);
-            if (!passwordCorrecto) {
-                mostrarMensajeAuth(form, 'Contrasena incorrecta.');
-                return;
-            }
-
-            autenticarYContinuar({
-                id_usuario: user.id_usuario,
-                email: user.email,
-                nombre: user.nombre,
-                tipo_usuario: user.tipo_usuario || 'Cliente'
-            });
-        } catch (error) {
-            console.error('Error iniciando sesion desde servicios:', error);
-            mostrarMensajeAuth(form, 'No se pudo iniciar sesion. Intentalo nuevamente.');
-        } finally {
-            setAuthLoading(form, botonSubmit, false);
-        }
-    }
-
-    async function enviarRegistroModal(form) {
-        const nombre = normalizarTexto(form.elements.nombre.value);
-        const telefono = normalizarTexto(form.elements.telefono.value);
-        const email = normalizarTexto(form.elements.email.value).toLowerCase();
-        const password = String(form.elements.password.value || '');
-        const botonSubmit = form.querySelector('[type="submit"]');
-
-        setAuthLoading(form, botonSubmit, true);
-        mostrarMensajeAuth(form, '');
-
-        try {
-            await asegurarBcryptDisponible();
-
-            const salt = window.dcodeIO.bcrypt.genSaltSync(10);
-            const passwordHash = window.dcodeIO.bcrypt.hashSync(password, salt);
-            const supabaseClient = await obtenerSupabaseClient();
-            const { data: user, error } = await supabaseClient
-                .from('usuarios')
-                .insert([{
-                    nombre,
-                    telefono,
-                    email,
-                    password: passwordHash,
-                    tipo_usuario: 'Cliente'
-                }])
-                .select('id_usuario,email,nombre,tipo_usuario')
-                .single();
-
-            if (error || !user) {
-                mostrarMensajeAuth(form, `Error al registrar usuario: ${error?.message || 'intenta nuevamente.'}`);
-                return;
-            }
-
-            autenticarYContinuar({
-                id_usuario: user.id_usuario,
-                email: user.email,
-                nombre: user.nombre,
-                tipo_usuario: user.tipo_usuario || 'Cliente'
-            });
-        } catch (error) {
-            console.error('Error registrando usuario desde servicios:', error);
-            mostrarMensajeAuth(form, 'No se pudo completar el registro. Intentalo nuevamente.');
-        } finally {
-            setAuthLoading(form, botonSubmit, false);
-        }
-    }
-
-    function autenticarYContinuar(usuario) {
-        guardarSesionUsuario(usuario);
-        actualizarMenuSesion(usuario);
-        cerrarModalAutenticacion();
-        avanzarAFormularioEvento();
-    }
-
-    function guardarSesionUsuario(usuario) {
-        localStorage.setItem('sessionUser', JSON.stringify(usuario));
-    }
-
-    function actualizarMenuSesion(usuario) {
-        const nombre = usuario.nombre || 'Usuario';
-        const rol = usuario.tipo_usuario || 'Cliente';
-        const userAvatar = document.getElementById('userAvatar') || document.getElementById('adminAvatar');
-        const userName = document.getElementById('userName') || document.getElementById('adminNombre');
-        const userRole = document.getElementById('userRole') || document.getElementById('adminRol');
-        const menuUsuarioLogueado = document.getElementById('menuUsuarioLogueado');
-        const menuUsuarioInvitado = document.getElementById('menuUsuarioInvitado');
-        const menuMisCotizaciones = document.getElementById('menuMisCotizaciones');
-        const menuGestionCotizaciones = document.getElementById('menuGestionCotizaciones');
-        const menuPanelAdmin = document.getElementById('menuPanelAdmin');
-
-        if (userAvatar) userAvatar.textContent = nombre.substring(0, 2).toUpperCase();
-        if (userName) userName.textContent = nombre;
-        if (userRole) userRole.textContent = rol;
-        if (menuUsuarioLogueado) menuUsuarioLogueado.style.display = 'block';
-        if (menuUsuarioInvitado) menuUsuarioInvitado.style.display = 'none';
-        if (menuMisCotizaciones && rol === 'Cliente') menuMisCotizaciones.style.display = 'flex';
-        if (menuGestionCotizaciones && (rol === 'Administrador' || rol === 'Admin')) menuGestionCotizaciones.style.display = 'flex';
-        if (menuPanelAdmin && (rol === 'Administrador' || rol === 'Admin')) menuPanelAdmin.style.display = 'flex';
-    }
-
-    function obtenerLoginMarkup() {
-        return `
-            <p class="auth-modal-eyebrow">Cotizacion protegida</p>
-            <h2 id="authModalTitle">Iniciar sesion</h2>
-            <p class="auth-modal-text">Ingresa para continuar con tu cotizacion sin perder los servicios seleccionados.</p>
-            <form class="auth-modal-form" data-auth-form="login">
-                <div class="auth-modal-field">
-                    <label for="auth_email">Email</label>
-                    <input id="auth_email" name="email" type="email" autocomplete="email" required>
-                </div>
-                <div class="auth-modal-field">
-                    <label for="auth_password">Contrasena</label>
-                    <input id="auth_password" name="password" type="password" autocomplete="current-password" required>
-                </div>
-                <div class="auth-modal-message" data-auth-message role="status" aria-live="polite"></div>
-                <button class="auth-modal-submit" type="submit">Iniciar sesion y continuar</button>
-            </form>
-            <p class="auth-modal-switch">No tienes cuenta? <button type="button" data-auth-mode="registro">Registrate aqui</button></p>
-        `;
-    }
-
-    function obtenerRegistroMarkup() {
-        return `
-            <p class="auth-modal-eyebrow">Cliente nuevo</p>
-            <h2 id="authModalTitle">Registro de Cliente</h2>
-            <p class="auth-modal-text">Crea tu cuenta para guardar tu cotizacion y continuar con el formulario del evento.</p>
-            <form class="auth-modal-form" data-auth-form="registro">
-                <div class="auth-modal-field">
-                    <label for="auth_nombre">Nombre</label>
-                    <input id="auth_nombre" name="nombre" type="text" autocomplete="name" required>
-                </div>
-                <div class="auth-modal-field">
-                    <label for="auth_reg_email">Email</label>
-                    <input id="auth_reg_email" name="email" type="email" autocomplete="email" required>
-                </div>
-                <div class="auth-modal-field">
-                    <label for="auth_telefono">Telefono</label>
-                    <input id="auth_telefono" name="telefono" type="tel" inputmode="numeric" pattern="[0-9]+" autocomplete="tel" required>
-                </div>
-                <div class="auth-modal-field">
-                    <label for="auth_reg_password">Contrasena</label>
-                    <input id="auth_reg_password" name="password" type="password" autocomplete="new-password" minlength="6" required>
-                </div>
-                <div class="auth-modal-message" data-auth-message role="status" aria-live="polite"></div>
-                <button class="auth-modal-submit" type="submit">Registrarme y continuar</button>
-            </form>
-            <p class="auth-modal-switch">Ya tienes cuenta? <button type="button" data-auth-mode="login">Inicia sesion</button></p>
-        `;
-    }
-
-    function mostrarMensajeAuth(form, texto) {
-        const mensaje = form.querySelector('[data-auth-message]');
-        if (mensaje) mensaje.textContent = texto;
-    }
-
-    function setAuthLoading(form, botonSubmit, loading) {
-        Array.from(form.elements).forEach((element) => {
-            element.disabled = loading;
-        });
-
-        if (botonSubmit) {
-            botonSubmit.textContent = loading ? 'Procesando...' : (form.dataset.authForm === 'login' ? 'Iniciar sesion y continuar' : 'Registrarme y continuar');
-        }
-    }
-
-    function obtenerSupabaseClient() {
-        if (!supabaseClientPromise) {
-            const scriptServicios = document.querySelector('script[src$="js/servicios.js"]');
-            const moduleUrl = new URL('../config/DatabaseConfig.js', scriptServicios?.src || window.location.href).href;
-            supabaseClientPromise = import(moduleUrl).then((module) => module.supabase);
-        }
-
-        return supabaseClientPromise;
-    }
-
-    function asegurarBcryptDisponible() {
-        if (window.dcodeIO?.bcrypt) return Promise.resolve();
-
-        return new Promise((resolve, reject) => {
-            const scriptExistente = document.querySelector('script[data-bcryptjs]');
-            if (scriptExistente) {
-                scriptExistente.addEventListener('load', resolve, { once: true });
-                scriptExistente.addEventListener('error', reject, { once: true });
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.js';
-            script.dataset.bcryptjs = 'true';
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('No se pudo cargar bcryptjs.'));
-            document.head.appendChild(script);
-        });
-    }
-
-    function crearServicio(idServicio, categoria, titulo, descripcion, caracteristicas, ideal, precio, popularidad, imagen) {
-        return { id_servicio: idServicio, categoria, titulo, descripcion, caracteristicas, ideal, precio, popularidad, imagen };
-    }
-
-    function obtenerChecks(nombre) {
-        return Array.from(shell.querySelectorAll(`input[name="${nombre}"]:checked`)).map((input) => input.value);
-    }
-
-    function calcularSubtotal() {
-        return serviciosSeleccionados.reduce((total, servicio) => total + (servicio.precio * servicio.cantidad), 0);
-    }
-
-    function calcularDescuento(subtotal) {
-        return calcularCantidadTotal() >= 4 ? Math.round(subtotal * 0.1) : 0;
-    }
-
-    function formatearMoneda(valor) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0
-        }).format(valor);
-    }
-
-    function normalizarTexto(valor) {
-        return String(valor || '').trim();
-    }
-
-    function parseStoredJson(value) {
-        if (!value) return null;
-
-        try {
-            return JSON.parse(value);
-        } catch (error) {
-            console.warn('No se pudo leer la sesion guardada:', error);
-            return null;
-        }
-    }
-
-    function agregarServicioAlCarrito(servicio) {
-        const servicioExistente = serviciosSeleccionados.find((item) => item.id_servicio === servicio.id_servicio);
-
-        if (servicioExistente) {
-            servicioExistente.cantidad += 1;
+        if (target.closest('#vaciarCarrito')) {
+            window.serviciosSeleccionados = [];
+            renderizarCarrito();
             return;
         }
 
-        serviciosSeleccionados.push({ ...servicio, cantidad: 1 });
-    }
-
-    function normalizarCarritoExistente() {
-        serviciosSeleccionados.forEach((servicio) => {
-            servicio.id_servicio = servicio.id_servicio || servicio.id;
-            servicio.cantidad = Number.isInteger(servicio.cantidad) && servicio.cantidad > 0 ? servicio.cantidad : 1;
-        });
-    }
-
-    function calcularCantidadTotal() {
-        return serviciosSeleccionados.reduce((total, servicio) => total + servicio.cantidad, 0);
-    }
-
-    function obtenerImagenFallback() {
-        return 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 900 560%22%3E%3Cdefs%3E%3CradialGradient id=%22g%22 cx=%2270%25%22 cy=%2220%25%22 r=%2270%25%22%3E%3Cstop offset=%220%25%22 stop-color=%22%23ef111c%22 stop-opacity=%220.42%22/%3E%3Cstop offset=%2248%25%22 stop-color=%22%23151518%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23050505%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width=%22900%22 height=%22560%22 fill=%22url(%23g)%22/%3E%3Cg fill=%22none%22 stroke=%22%23ffffff%22 stroke-opacity=%220.32%22 stroke-width=%228%22%3E%3Cpath d=%22M245 355h410M305 290h290M365 225h170%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%22450%22 cy=%22285%22 r=%22155%22/%3E%3C/g%3E%3Ctext x=%22450%22 y=%22472%22 text-anchor=%22middle%22 fill=%22%23ffffff%22 fill-opacity=%220.72%22 font-family=%22Arial%22 font-size=%2236%22 font-weight=%22700%22%3ENaxMusic%3C/text%3E%3C/svg%3E';
-    }
-
-    function limpiarMensajeEvento() {
-        mensajeEvento.textContent = '';
-        mensajeEvento.className = 'event-message';
-    }
-
-    function mostrarMensajeEvento(texto, tipo) {
-        mensajeEvento.textContent = texto;
-        mensajeEvento.className = `event-message is-${tipo}`;
-    }
-
-    function iconoCarrito() {
-        return `
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L23 6H6"></path>
-            </svg>
-        `;
-    }
-
-    function iconoPapelera() {
-        return `
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 6h18"></path>
-                <path d="M8 6V4h8v2"></path>
-                <path d="M19 6l-1 14H6L5 6"></path>
-                <path d="M10 11v6"></path>
-                <path d="M14 11v6"></path>
-            </svg>
-        `;
-    }
-
-    window.prepararCotizacionPayload = prepararCotizacionPayload;
-    window.enviarCotizacionPendiente = enviarCotizacionPendiente;
-})();
+        const botonSolicitar = target.closest('#irAlCarrito');
+        if (botonSolicitar && !botonSolicitar.disabled) {
+            enviarCotizacionSeleccionada();
+        }
+    });
+}

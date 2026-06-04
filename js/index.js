@@ -52,6 +52,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.reload(); // Recargar la página para volver al estado de invitado
         });
 
+        // 7. Redirección después del login
+        const redirect = localStorage.getItem('redirectAfterLogin');
+        if (redirect) {
+            localStorage.removeItem('redirectAfterLogin');
+            setTimeout(() => {
+                cargarContenido(redirect);
+            }, 100);
+        }
+
     } else {
         // Si no hay sesión, se mantienen los valores estáticos por defecto (NM, NaxMusic, Invitado)
         // y se asegura que el menú de invitado sea el único visible.
@@ -129,10 +138,17 @@ async function cargarContenido(opcion) {
         const scripts = doc.querySelectorAll('script');
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
-            if (oldScript.type) newScript.type = oldScript.type;
-            if (oldScript.src) newScript.src = oldScript.src;
-            if (oldScript.innerHTML) newScript.innerHTML = oldScript.innerHTML;
-            document.body.appendChild(newScript);
+            Array.from(oldScript.attributes).forEach(attr => {
+                let val = attr.value;
+                if (attr.name === 'src') {
+                    val = val + (val.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                }
+                newScript.setAttribute(attr.name, val);
+            });
+            if (oldScript.innerHTML) {
+                newScript.innerHTML = oldScript.innerHTML;
+            }
+            contenido.appendChild(newScript);
         });
 
         if (opcion === 'formulario_eventos') {

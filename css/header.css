@@ -1,33 +1,14 @@
-.main-header {
-    width: 100%;
-    background-color: #111116;
-    padding: 15px 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
+/* ========================================= */
+/* ========= HEADER — Premium Dark ========= */
+/* ========================================= */
 
-.header-container {
-    max-width: 120px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Subtle ambient shadow and glow beneath the header */
+.main-header {
+    box-shadow:
+        0 4px 30px rgba(0, 0, 0, 0.4),
+        0 1px 60px rgba(229, 9, 20, 0.03);
 }
 
 .logo-link {
     text-decoration: none;
-}
-
-.logo-text {
-    color: #ffffff;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-.logo-text span {
-    color: #ff0055;
-    /* Color de acento para la marca */
 }

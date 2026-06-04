@@ -12,14 +12,19 @@ html,
 body {
     width: 100%;
     min-height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     background: #000;
     color: #fff;
     font-family: Arial, sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: #e5180a #0f1012;
 }
 
 body {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* IMAGENES */
@@ -53,8 +58,10 @@ img {
     display: flex;
     width: 100%;
     min-width: 0;
-    height: 100vh;
-    overflow: hidden;
+    height: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
     position: relative;
 }
 
@@ -63,7 +70,8 @@ img {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
+    min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
     background:
@@ -76,22 +84,47 @@ img {
     transition: margin 0.25s ease;
 }
 
+.main-content,
+body {
+    scrollbar-width: thin;
+    scrollbar-color: #e5180a #0f1012;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f1012;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ff2116 0%, #e5180a 45%, #9c0803 100%);
+    border: 1px solid #0f1012;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff3a2f 0%, #f1190f 48%, #b20a05 100%);
+}
+
 .main-content::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 
 .main-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: #0f1012;
 }
 
 .main-content::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #e50914, #7a0000);
-    border: 2px solid rgba(8, 8, 8, 0.9);
+    background: linear-gradient(180deg, #ff2116 0%, #e5180a 45%, #9c0803 100%);
+    border: 1px solid #0f1012;
     border-radius: 999px;
 }
 
 .main-content::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #ff1f2a, #a00000);
+    background: linear-gradient(180deg, #ff3a2f 0%, #f1190f 48%, #b20a05 100%);
 }
 
 /* ========================================= */
@@ -110,7 +143,7 @@ img {
 
 .sidebar-toggle {
     position: fixed;
-    top: 18px;
+    top: 76px;
     left: 282px;
     z-index: 50;
     width: 42px;
@@ -196,7 +229,7 @@ a {
     }
 
     .sidebar-toggle {
-        top: 12px;
+        top: 70px;
         left: 252px;
     }
 

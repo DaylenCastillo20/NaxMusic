@@ -12,6 +12,8 @@ const camposRequeridos = [
 ];
 
 export function initCotizacionForm() {
+    actualizarResumenCotizacion();
+
     const form = document.getElementById('cotizacionEventoForm');
 
     if (!form || form.dataset.initialized === 'true') {
@@ -26,9 +28,34 @@ export function initCotizacionForm() {
     });
 }
 
+function actualizarResumenCotizacion() {
+    const resumenServicios = document.getElementById('resumenServicios');
+    const resumenTotal = document.getElementById('resumenTotal');
+
+    if (!resumenServicios || !resumenTotal) return;
+
+    try {
+        const serviciosStr = sessionStorage.getItem('serviciosSeleccionados');
+        const totalStr = sessionStorage.getItem('cotizacionTotal');
+
+        if (serviciosStr && totalStr) {
+            const servicios = JSON.parse(serviciosStr);
+            const total = Number(totalStr);
+
+            const cantidadTotal = servicios.reduce((acc, curr) => acc + (Number(curr.cantidad) || 1), 0);
+
+            resumenServicios.textContent = `${cantidadTotal} servicio${cantidadTotal !== 1 ? 's' : ''}`;
+            resumenTotal.textContent = `$${total.toLocaleString()}`;
+        }
+    } catch (e) {
+        console.warn('Error al leer el resumen de cotización', e);
+    }
+}
+
 export async function guardarCotizacionDesdeFormulario(form) {
     const mensaje = document.getElementById('cotizacionMensaje');
     const botonSubmit = form.querySelector('button[type="submit"]');
+    const contenidoOriginalBoton = botonSubmit?.innerHTML || 'Generar cotizacion';
 
     try {
         limpiarMensaje(mensaje);
@@ -39,23 +66,49 @@ export async function guardarCotizacionDesdeFormulario(form) {
 
         if (botonSubmit) {
             botonSubmit.disabled = true;
+            botonSubmit.textContent = 'Procesando...';
+        }
+
+        const serviciosStr = sessionStorage.getItem('serviciosSeleccionados');
+        const totalStr = sessionStorage.getItem('cotizacionTotal');
+        
+        let servicios = [];
+        let total = 0;
+
+        if (serviciosStr) {
+            servicios = JSON.parse(serviciosStr);
+        }
+        if (totalStr) {
+            total = Number(totalStr);
         }
 
         const cotizacion = new Cotizacion(supabase);
-        await cotizacion.crearDesdeFormulario({
-            ...datosCotizacion,
-            id_cliente: usuarioRegistrado?.id_usuario || null,
-            nombre_cliente: usuarioRegistrado?.nombre || null
+        await cotizacion.crearConDetalles({
+            evento: {
+                ...datosCotizacion,
+                id_usuario: usuarioRegistrado?.id_usuario || null,
+                nombre_cliente: usuarioRegistrado?.nombre || null
+            },
+            servicios: servicios,
+            totales: { total: total },
+            usuario: usuarioRegistrado
         });
 
-        mostrarMensaje(mensaje, 'Cotización realizada', 'success');
+        mostrarMensaje(mensaje, 'Cotización realizada con éxito', 'success');
         form.reset();
+        
+        sessionStorage.removeItem('serviciosSeleccionados');
+        sessionStorage.removeItem('cotizacionTotal');
+        sessionStorage.removeItem('cotizacionServiciosEvento');
+        
+        actualizarResumenCotizacion();
     } catch (error) {
         console.error('Error al guardar la cotizacion:', error);
         mostrarMensaje(mensaje, error.message || 'No se pudo guardar la cotizacion.', 'error');
     } finally {
         if (botonSubmit) {
             botonSubmit.disabled = false;
+            botonSubmit.innerHTML = contenidoOriginalBoton;
         }
     }
 }
