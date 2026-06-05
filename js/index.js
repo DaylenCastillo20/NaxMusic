@@ -99,6 +99,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 // LÓGICA SPA (CARGA DINÁMICA DE VISTAS)
 // ==========================================
 
+// Gestiona la carga dinámica de vistas y scripts
+// requeridos utilizando el contenedor principal.
 async function cargarContenido(opcion) {
     const contenido = document.getElementById("contenido");
     setSidebarCollapsed(true);
@@ -168,6 +170,8 @@ async function cargarContenido(opcion) {
     }
 }
 
+// Verifica mediante el localStorage si el usuario
+// actual posee privilegios de administrador.
 function esUsuarioAdministrador() {
     const sessionString = localStorage.getItem('sessionUser');
     const userSession = parseStoredJson(sessionString);
@@ -176,6 +180,8 @@ function esUsuarioAdministrador() {
     return rol === 'Administrador' || rol === 'Admin';
 }
 
+// Analiza de forma segura una cadena JSON
+// evitando excepciones que puedan detener la ejecución.
 function parseStoredJson(value) {
     if (!value) return null;
 
@@ -187,6 +193,8 @@ function parseStoredJson(value) {
     }
 }
 
+// Controla el estado visual y funcional
+// del menú de navegación lateral.
 function setSidebarCollapsed(collapsed) {
     const appContainer = document.querySelector('.app-container');
     const toggleButtons = document.querySelectorAll('[data-sidebar-toggle]');
@@ -202,6 +210,8 @@ function setSidebarCollapsed(collapsed) {
     });
 }
 
+// Inicializa la funcionalidad para mostrar
+// u ocultar la barra lateral en la aplicación.
 function initSidebarToggle() {
     const storedState = localStorage.getItem('naxSidebarCollapsed');
     // Siempre iniciar colapsado si no hay un estado guardado explícitamente como no-colapsado
@@ -225,6 +235,8 @@ function initSidebarToggle() {
     });
 }
 
+// Mantiene el año actualizado automáticamente
+// en la sección del pie de página.
 function updateFooterYear() {
     const footerYear = document.getElementById('year');
     if (footerYear) {
@@ -232,6 +244,8 @@ function updateFooterYear() {
     }
 }
 
+// Muestra notificaciones de error temporales
+// para informar al usuario de fallos.
 function mostrarError(mensaje) {
     const errorBox = document.getElementById('errorAlert');
     const errorText = document.getElementById('errorMessage');

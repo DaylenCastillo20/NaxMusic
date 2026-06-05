@@ -16,6 +16,8 @@ class Cotizacion {
         this.estado = null;
     }
 
+    // Crea una cotización básica desde los datos
+    // del evento recibidos del formulario.
     async crearDesdeFormulario(datosEvento) {
         try {
             const fechaHoy = this.obtenerFechaActual();
@@ -52,6 +54,8 @@ class Cotizacion {
         }
     }
 
+    // Crea una cotización completa con sus respectivos
+    // detalles de servicios y totales calculados.
     async crearConDetalles({ evento, servicios, totales, usuario }) {
         let cotizacionCreada = null;
 
@@ -118,6 +122,8 @@ class Cotizacion {
         }
     }
 
+    // Valida y prepara la estructura de datos
+    // requerida para el detalle de un servicio.
     prepararDetalleCotizacion(servicio, idCotizacion) {
         const idServicio = this.normalizarEntero(servicio.id_servicio);
         const cantidad = Number(servicio.cantidad || 0);
@@ -139,6 +145,8 @@ class Cotizacion {
         };
     }
 
+    // Convierte y asegura que el valor
+    // proporcionado sea un número entero válido.
     normalizarEntero(valor) {
         if (valor === null || valor === undefined || valor === '') {
             return null;
@@ -148,6 +156,8 @@ class Cotizacion {
         return Number.isInteger(numero) && numero > 0 ? numero : null;
     }
 
+    // Elimina el registro principal de una cotización
+    // si ocurre un error durante su creación.
     async eliminarCotizacionIncompleta(idCotizacion) {
         const { error } = await this.conn
             .from(this.tabla)
@@ -159,6 +169,8 @@ class Cotizacion {
         }
     }
 
+    // Retorna la fecha actual en formato
+    // estándar (YYYY-MM-DD) para la base de datos.
     obtenerFechaActual() {
         const hoy = new Date();
         const year = hoy.getFullYear();

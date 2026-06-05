@@ -11,6 +11,8 @@ const camposRequeridos = [
     'descripcion'
 ];
 
+// Inicializa el formulario de cotización, actualiza
+// el resumen y configura su evento de envío.
 export function initCotizacionForm() {
     actualizarResumenCotizacion();
 
@@ -28,6 +30,8 @@ export function initCotizacionForm() {
     });
 }
 
+// Actualiza los elementos visuales del resumen
+// utilizando los datos de la sesión actual.
 function actualizarResumenCotizacion() {
     const resumenServicios = document.getElementById('resumenServicios');
     const resumenTotal = document.getElementById('resumenTotal');
@@ -52,6 +56,8 @@ function actualizarResumenCotizacion() {
     }
 }
 
+// Procesa el formulario, valida y guarda la cotización
+// en la base de datos con sus respectivos servicios.
 export async function guardarCotizacionDesdeFormulario(form) {
     const mensaje = document.getElementById('cotizacionMensaje');
     const botonSubmit = form.querySelector('button[type="submit"]');
@@ -113,6 +119,8 @@ export async function guardarCotizacionDesdeFormulario(form) {
     }
 }
 
+// Extrae y normaliza los datos ingresados
+// por el usuario dentro del formulario.
 function obtenerDatosFormulario(form) {
     const formData = new FormData(form);
 
@@ -127,6 +135,8 @@ function obtenerDatosFormulario(form) {
     };
 }
 
+// Obtiene la sesión actual del usuario desde localStorage
+// o desde la base de datos si es necesario.
 async function obtenerUsuarioRegistrado() {
     const sessionUser = leerSesionUsuario();
 
@@ -163,6 +173,8 @@ async function obtenerUsuarioRegistrado() {
     return usuario;
 }
 
+// Lee y parsea la información de sesión
+// almacenada localmente en el navegador.
 function leerSesionUsuario() {
     const sessionString = localStorage.getItem('sessionUser');
 
@@ -178,6 +190,8 @@ function leerSesionUsuario() {
     }
 }
 
+// Verifica que todos los campos obligatorios
+// estén completos y con valores válidos.
 function validarDatosCotizacion(datosCotizacion) {
     const tieneCamposVacios = camposRequeridos.some((campo) => {
         if (campo === 'cantidad_asistentes') {
@@ -192,10 +206,14 @@ function validarDatosCotizacion(datosCotizacion) {
     }
 }
 
+// Limpia un string eliminando los espacios
+// en blanco de los extremos.
 function normalizarTexto(valor) {
     return String(valor || '').trim();
 }
 
+// Limpia el contenido de un elemento HTML
+// utilizado para mostrar mensajes.
 function limpiarMensaje(mensaje) {
     if (!mensaje) return;
 
@@ -203,6 +221,8 @@ function limpiarMensaje(mensaje) {
     mensaje.className = 'cotizacion-message';
 }
 
+// Muestra un mensaje en pantalla asignando
+// las clases de estilo correspondientes.
 function mostrarMensaje(mensaje, texto, tipo) {
     if (!mensaje) {
         alert(texto);

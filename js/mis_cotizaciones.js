@@ -12,25 +12,23 @@
         initMisCotizaciones();
     }
 
+    // Configura y prepara la interfaz gráfica
+    // para visualizar las cotizaciones del usuario.
     function initMisCotizaciones() {
         root = document.getElementById('misCotizacionesPanel');
         if (!root || root.dataset.initialized === 'true') return;
         root.dataset.initialized = 'true';
 
-        // Render table header
         const thead = root.querySelector('#mcTableHead');
         if (thead) {
             thead.innerHTML = `<tr>${COLUMNS.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>`;
         }
 
-        // Wire up click events on table body for actions
         root.querySelector('#mcTableBody')?.addEventListener('click', manejarAccionTabla);
 
-        // Wire up modal close
         root.querySelector('#mcModal')?.addEventListener('click', manejarCierreModal);
         document.addEventListener('keydown', manejarEscapeModal);
 
-        // Wire up "Nueva Cotización" button
         root.querySelector('#mcNuevaCotizacion')?.addEventListener('click', () => {
             if (typeof window.cargarContenido === 'function') {
                 window.cargarContenido('servicios');
@@ -40,6 +38,8 @@
         cargarCotizacionesCliente();
     }
 
+    // Obtiene las cotizaciones asociadas al cliente
+    // desde la base de datos y actualiza la tabla.
     async function cargarCotizacionesCliente() {
         const tbody = root.querySelector('#mcTableBody');
         const status = root.querySelector('#mcStatus');
@@ -85,6 +85,8 @@
         }
     }
 
+    // Convierte un objeto de cotización en
+    // el formato HTML necesario para la tabla.
     function renderCotizacionRow(row) {
         const id = firstValue(row, ['id_cotizacion', 'id'], '');
         const evento = firstValue(row, ['nombre_evento', 'tipo_evento', 'evento'], 'Evento sin título');
@@ -116,6 +118,8 @@
         `;
     }
 
+    // Captura y procesa los clics en los botones
+    // de acción correspondientes a cada cotización.
     async function manejarAccionTabla(event) {
         const button = event.target.closest('[data-action]');
         if (!button) return;
@@ -128,6 +132,8 @@
         }
     }
 
+    // Muestra una ventana emergente con la
+    // información detallada de una cotización específica.
     async function abrirModalCotizacion(id) {
         abrirModal(`
             <div class="gc-modal-body">
@@ -140,7 +146,6 @@
         try {
             const supabase = await obtenerSupabase();
 
-            // Fetch quotation
             const { data: cotizacion, error: cotError } = await supabase
                 .from('cotizaciones')
                 .select('*')
@@ -149,7 +154,6 @@
 
             if (cotError) throw cotError;
 
-            // Fetch details with services join
             let detalles = [];
             const { data: detData, error: detError } = await supabase
                 .from('detalle_cotizacion')
@@ -159,7 +163,7 @@
             if (!detError && detData) {
                 detalles = detData;
             } else {
-                // Fallback: fetch details without join
+
                 const { data: detPlain } = await supabase
                     .from('detalle_cotizacion')
                     .select('*')
@@ -184,6 +188,8 @@
         }
     }
 
+    // Dibuja los detalles y servicios de una
+    // cotización dentro de la ventana emergente.
     function renderModalCotizacion(cotizacion, detalles, id) {
         const total = firstValue(cotizacion, ['total', 'valor_total', 'monto'], calcularTotalDetalles(detalles));
         const estado = firstValue(cotizacion, ['estado'], 'Pendiente');
@@ -223,6 +229,8 @@
         `);
     }
 
+    // Convierte el detalle de un servicio en su
+    // respectiva fila HTML para la ventana modal.
     function renderDetalleCotizacionRow(row) {
         const servicio = row.servicios || row.servicio || {};
         const nombreServicio = firstValue(servicio, ['nombre', 'titulo'], firstValue(row, ['nombre_servicio'], 'Servicio sin nombre'));
@@ -242,6 +250,8 @@
     // Modal helpers
     // ====================================
 
+    // Inyecta el contenido HTML en la modal
+    // y la muestra visualmente en pantalla.
     function abrirModal(markup) {
         const modal = root.querySelector('#mcModal');
         const content = root.querySelector('#mcModalContent');
@@ -252,6 +262,8 @@
         modal.setAttribute('aria-hidden', 'false');
     }
 
+    // Oculta la ventana emergente modal
+    // modificando sus clases de estilo CSS.
     function cerrarModal() {
         const modal = root?.querySelector('#mcModal');
         if (!modal) return;
@@ -259,12 +271,16 @@
         modal.setAttribute('aria-hidden', 'true');
     }
 
+    // Cierra la modal cuando el usuario hace
+    // clic en elementos con el atributo de cierre.
     function manejarCierreModal(event) {
         if (event.target.closest('[data-mc-modal-close]')) {
             cerrarModal();
         }
     }
 
+    // Permite cerrar la ventana emergente modal
+    // presionando la tecla Escape en el teclado.
     function manejarEscapeModal(event) {
         if (event.key === 'Escape' && root?.querySelector('#mcModal')?.classList.contains('is-open')) {
             cerrarModal();
@@ -275,6 +291,8 @@
     // Data helpers
     // ====================================
 
+    // Lee y parsea la información de sesión
+    // del usuario desde el almacenamiento local.
     function obtenerUsuarioSesion() {
         try {
             const sessionString = localStorage.getItem('sessionUser');
@@ -286,6 +304,8 @@
         }
     }
 
+    // Inicializa o devuelve la instancia
+    // global del cliente de base de datos Supabase.
     async function obtenerSupabase() {
         if (window.supabase?.from) return window.supabase;
         if (!supabaseClientPromise) {
@@ -303,6 +323,8 @@
     // Rendering utilities
     // ====================================
 
+    // Retorna una fila de tabla HTML
+    // con un mensaje para estados vacíos o errores.
     function obtenerFilaVacia(message, icon) {
         return `
             <tr class="gc-empty-row">
@@ -316,6 +338,8 @@
         `;
     }
 
+    // Genera una etiqueta visual HTML
+    // según el estado de la cotización.
     function estadoBadge(status) {
         const normalized = normalizarEstado(status);
         const className = {
@@ -327,6 +351,8 @@
         return `<span class="gc-status-badge ${className}">${escapeHtml(status || 'Pendiente')}</span>`;
     }
 
+    // Renderiza un contenedor visual con una
+    // etiqueta y su respectivo valor asociado.
     function detailItem(label, value) {
         return `
             <div class="gc-detail-item">
@@ -336,16 +362,22 @@
         `;
     }
 
+    // Actualiza el texto de un elemento de
+    // estado y su color según haya error o no.
     function setStatus(element, text, isError) {
         if (!element) return;
         element.textContent = text || '';
         element.classList.toggle('is-error', Boolean(isError));
     }
 
+    // Suma los subtotales de todos los
+    // detalles de una cotización para obtener el total.
     function calcularTotalDetalles(detalles) {
         return (detalles || []).reduce((sum, d) => sum + Number(firstValue(d, ['subtotal', 'total'], 0) || 0), 0);
     }
 
+    // Retorna el primer valor válido encontrado
+    // al buscar múltiples claves en un objeto.
     function firstValue(row, keys, fallback) {
         for (const key of keys) {
             const value = row?.[key];
@@ -354,6 +386,8 @@
         return fallback;
     }
 
+    // Estandariza un estado eliminando
+    // tildes y convirtiéndolo a minúsculas.
     function normalizarEstado(value) {
         return String(value || '').trim()
             .normalize('NFD')
@@ -361,6 +395,8 @@
             .toLowerCase();
     }
 
+    // Da formato local estándar a un string
+    // que representa una fecha válida.
     function formatDate(value) {
         if (!value) return 'Sin fecha';
         const date = new Date(`${value}`.includes('T') ? value : `${value}T00:00:00`);
@@ -373,6 +409,8 @@
         }).format(date);
     }
 
+    // Aplica el formato de moneda local (COP)
+    // a un valor numérico suministrado.
     function formatCurrency(value) {
         const amount = Number(value || 0);
         return new Intl.NumberFormat('es-CO', {
@@ -382,6 +420,8 @@
         }).format(Number.isFinite(amount) ? amount : 0);
     }
 
+    // Escapa caracteres especiales en un texto
+    // para prevenir vulnerabilidades de inyección HTML.
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;')
@@ -391,6 +431,8 @@
             .replace(/'/g, '&#039;');
     }
 
+    // Escapa caracteres para ser usados
+    // de manera segura dentro de atributos HTML.
     function escapeAttribute(value) {
         return escapeHtml(value);
     }

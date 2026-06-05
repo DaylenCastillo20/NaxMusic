@@ -18,6 +18,8 @@ let serviciosGlobales = [];
 let tabActivo = 'Todos';
 
 // Función para obtener referencias FRESCAS del DOM en cada renderizado (Evita referencias null/huérfanas)
+// Obtiene referencias frescas de los elementos
+// del DOM para evitar referencias huérfanas.
 function obtenerElementosDOM() {
     return {
         grid: document.getElementById('contenedor-servicios'),
@@ -29,6 +31,8 @@ function obtenerElementosDOM() {
     };
 }
 
+// Inicializa el catálogo de servicios cargando
+// los datos del controlador y la base de datos.
 async function inicializarCatalogo() {
     const dom = obtenerElementosDOM();
 
@@ -74,6 +78,8 @@ async function inicializarCatalogo() {
     }
 }
 
+// Actualiza la visualización de los servicios
+// aplicando los filtros seleccionados actualmente.
 function actualizarVista() {
     const serviciosFiltrados = aplicarFiltros(serviciosGlobales);
 
@@ -84,6 +90,8 @@ function actualizarVista() {
     }
 }
 
+// Renderiza las tarjetas de los servicios en
+// el contenedor principal del catálogo.
 function renderizarTarjetas(servicios) {
     const dom = obtenerElementosDOM();
     if (!dom.grid) return;
@@ -125,6 +133,8 @@ function renderizarTarjetas(servicios) {
     `).join('');
 }
 
+// Aplica los filtros activos a la lista de servicios
+// devolviendo un subconjunto ordenado y filtrado.
 function aplicarFiltros(servicios) {
     const dom = obtenerElementosDOM();
     const categoriasSeleccionadas = Array.from(document.querySelectorAll('input[name="categoria"]:checked')).map(cb => cb.value);
@@ -143,6 +153,8 @@ function aplicarFiltros(servicios) {
         });
 }
 
+// Configura los eventos de interacción en
+// todos los controles de filtrado y ordenamiento.
 function configurarEventosFiltros() {
     const dom = obtenerElementosDOM();
     if (!dom.shell) return;
@@ -200,6 +212,8 @@ function configurarEventosFiltros() {
     }
 }
 
+// Muestra un mensaje temporal en el catálogo
+// cuando no hay resultados o existe un error.
 function mostrarEstadoCatalogo(texto, tipo = 'empty') {
     const dom = obtenerElementosDOM();
     if (!dom.grid) return;
@@ -213,6 +227,8 @@ function mostrarEstadoCatalogo(texto, tipo = 'empty') {
 // -----------------------------------------------------
 // Lógica del Carrito Global
 // -----------------------------------------------------
+// Añade un servicio seleccionado al carrito
+// de cotización y actualiza la vista.
 window.agregarAlCarrito = function (idServicio) {
     const servicio = serviciosGlobales.find(s => String(s.id) === String(idServicio));
     if (!servicio) return;
@@ -227,43 +243,9 @@ window.agregarAlCarrito = function (idServicio) {
     renderizarCarrito();
 };
 
-function renderizarCarritoLegacy() {
-    const listaCarrito = document.getElementById('listaCarrito');
-    const contadorCarrito = document.getElementById('contadorCarrito');
-    const subtotalCarrito = document.getElementById('subtotalCarrito');
-    const totalCarrito = document.getElementById('totalCarrito');
-    const botonSolicitar = document.getElementById('irAlCarrito');
 
-    if (!listaCarrito) return;
-
-    let total = 0;
-    let cantidadTotal = 0;
-
-    listaCarrito.innerHTML = window.serviciosSeleccionados.map(item => {
-        const itemTotal = item.precio * item.cantidad;
-        total += itemTotal;
-        cantidadTotal += item.cantidad;
-
-        return `
-        <div class="flex justify-between items-center p-2 border-b border-gray-800 text-sm text-gray-300 mb-2">
-            <div>
-                <h4 class="font-bold text-white">${item.nombre}</h4>
-                <div class="text-xs text-gray-500">$${item.precio.toLocaleString()} x ${item.cantidad}</div>
-            </div>
-            <button onclick="eliminarDelCarrito('${item.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold px-2">✕</button>
-        </div>
-        `;
-    }).join('');
-
-    if (contadorCarrito) contadorCarrito.textContent = cantidadTotal;
-    if (subtotalCarrito) subtotalCarrito.textContent = `$${total.toLocaleString()}`;
-    if (totalCarrito) totalCarrito.textContent = `$${total.toLocaleString()}`;
-
-    if (botonSolicitar) {
-        botonSolicitar.disabled = window.serviciosSeleccionados.length === 0;
-    }
-}
-
+// Dibuja el estado actual del carrito
+// actualizando los subtotales e interfaz visual.
 function renderizarCarrito() {
     const listaCarrito = document.getElementById('listaCarrito');
     const contadorCarrito = document.getElementById('contadorCarrito');
@@ -314,6 +296,8 @@ function renderizarCarrito() {
     actualizarEstadoBotonCotizacion(botonSolicitar, total);
 }
 
+// Ajusta el estado visual y funcional del
+// botón de solicitud según los elementos del carrito.
 function actualizarEstadoBotonCotizacion(botonSolicitar, total = 0) {
     if (!botonSolicitar) return;
 
@@ -332,17 +316,23 @@ function actualizarEstadoBotonCotizacion(botonSolicitar, total = 0) {
     botonSolicitar.classList.toggle('shadow-red-600/30', !carritoVacio);
 }
 
+// Elimina un servicio específico del carrito
+// y actualiza la lista visual inmediatamente.
 window.eliminarDelCarrito = function (idServicio) {
     window.serviciosSeleccionados = window.serviciosSeleccionados.filter(s => String(s.id) !== String(idServicio));
     renderizarCarrito();
 };
 
+// Calcula la suma total en dinero de todos
+// los servicios actualmente en el carrito.
 function obtenerTotalCarrito() {
     return window.serviciosSeleccionados.reduce((total, servicio) => {
         return total + (Number(servicio.precio) * Number(servicio.cantidad || 1));
     }, 0);
 }
 
+// Persiste la configuración del carrito
+// en el almacenamiento de sesión del navegador.
 function guardarCotizacionEnStorage(total) {
     const servicios = window.serviciosSeleccionados.map(servicio => ({
         ...servicio,
@@ -363,6 +353,8 @@ function guardarCotizacionEnStorage(total) {
     sessionStorage.setItem('cotizacionServiciosEvento', JSON.stringify(payload));
 }
 
+// Procesa el envío del carrito a la base
+// de datos o redirige según autenticación.
 function enviarCotizacionSeleccionada() {
     if (window.serviciosSeleccionados.length === 0) return;
 

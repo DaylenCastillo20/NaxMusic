@@ -1,6 +1,8 @@
 import Usuario from '../models/Usuario.js';
 import { supabase } from '../config/DatabaseConfig.js';
 
+// Autentica el inicio de sesión del usuario
+// y establece las variables de sesión correspondientes.
 export const loginController = async (req, res) => {
     // Evitar que el navegador guarde la pagina en el historial de cache
     res.set({

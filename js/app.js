@@ -1,3 +1,5 @@
+// Carga dinámicamente el contenido de la vista
+// solicitada dentro del contenedor principal.
 async function cargarContenido(opcion) {
     const contenido = document.getElementById("contenido");
     setSidebarCollapsed(true);
@@ -55,6 +57,8 @@ async function cargarContenido(opcion) {
     }
 }
 
+// Expande o colapsa el menú lateral
+// actualizando la interfaz y el estado local.
 function setSidebarCollapsed(collapsed) {
     const appContainer = document.querySelector('.app-container');
     const toggleButtons = document.querySelectorAll('[data-sidebar-toggle]');
@@ -70,6 +74,8 @@ function setSidebarCollapsed(collapsed) {
     });
 }
 
+// Inicializa los eventos y el estado
+// del menú lateral responsivo.
 function initSidebarToggle() {
     const storedState = localStorage.getItem('naxSidebarCollapsed');
     const savedState = storedState === null
@@ -94,6 +100,8 @@ function initSidebarToggle() {
     });
 }
 
+// Muestra una alerta temporal de error
+// en la pantalla del usuario.
 function mostrarError(mensaje) {
     const errorBox = document.getElementById('errorAlert');
     const errorText = document.getElementById('errorMessage');
@@ -124,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 300);
 
         // LIMPIAR LA URL DESPUES DE MOSTRAR EL ERROR
-        window.history.replaceState({}, document.title, "index.php");
+        window.history.replaceState({}, document.title, "index.html");
     }
 
     if (urlParams.get('error') === 'registro_pass') {
@@ -136,6 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 300);
 
         // también limpiar
-        window.history.replaceState({}, document.title, "index.php");
+        window.history.replaceState({}, document.title, "index.html");
     }
 });

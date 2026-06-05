@@ -2,9 +2,13 @@
  * Controlador de Servicios (MVC)
  * Maneja exclusivamente la lógica de negocio y comunicación con Supabase.
  */
+// Encapsula la lógica de negocio y comunicación con BD
+// relacionada a la gestión de servicios.
 window.ServicioController = (function() {
     
     // Función privada para obtener el cliente de Supabase
+    // Obtiene y retorna el cliente de Supabase asegurando
+    // su correcta inicialización o importación.
     async function getSupabaseClient() {
         // Priorizar el cliente global ya inicializado por index.js
         if (window.supabase) {
@@ -20,10 +24,14 @@ window.ServicioController = (function() {
         return module.supabase;
     }
 
+    // Recorta espacios de los extremos del texto
+    // asegurando un formato de string seguro.
     function normalizarTexto(valor) {
         return String(valor || '').trim();
     }
 
+    // Valida y prepara la información del servicio
+    // antes de ser enviada a la base de datos.
     function prepararPayloadServicio(datosServicio) {
         const payload = {
             nombre: normalizarTexto(datosServicio?.nombre),
@@ -49,6 +57,8 @@ window.ServicioController = (function() {
          * Obtiene todos los servicios de la base de datos y los normaliza.
          * @returns {Promise<Array>} Array de objetos de servicio limpios.
          */
+        // Consulta todos los servicios en la base de datos
+        // y los devuelve con un formato consistente.
         obtenerServicios: async function() {
             try {
                 const supabaseClient = await getSupabaseClient();
@@ -90,6 +100,8 @@ window.ServicioController = (function() {
          * @param {Object} datosServicio Datos del formulario de administracion.
          * @returns {Promise<Object>} Servicio insertado.
          */
+        // Inserta un nuevo servicio en la base de datos
+        // validando previamente su estructura y datos.
         crearServicio: async function(datosServicio) {
             try {
                 const supabaseClient = await getSupabaseClient();

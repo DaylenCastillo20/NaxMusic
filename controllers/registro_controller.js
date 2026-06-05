@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import { supabase } from '../config/DatabaseConfig.js';
 
+// Registra un nuevo usuario en la base de datos
+// validando sus datos y encriptando su contraseña.
 export const registroController = async (req, res) => {
     // Evitar que el navegador guarde la pagina en el historial de cache
     res.set({

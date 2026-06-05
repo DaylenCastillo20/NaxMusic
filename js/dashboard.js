@@ -2,6 +2,8 @@
 // Lógica del Carrusel Interactivo NaxMusic
 // ==========================================
 
+// Inicializa y controla el comportamiento
+// automático e interactivo del carrusel principal.
 (function initNaxCarousel() {
     const track = document.getElementById('nmCarouselTrack');
     const slides = Array.from(document.querySelectorAll('.nm-carousel-slide'));
@@ -18,6 +20,8 @@
     // Generar o vincular botones de puntos (dots)
     const dots = Array.from(dotsContainer.querySelectorAll('button'));
 
+    // Aplica las transformaciones y estilos
+    // correspondientes a la diapositiva actual.
     function updateCarousel() {
         // Mover el track horizontalmente
         track.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -41,17 +45,23 @@
         });
     }
 
+    // Avanza el carrusel a la siguiente
+    // diapositiva disponible.
     function nextSlide() {
         currentIndex = (currentIndex + 1) % totalSlides;
         updateCarousel();
     }
 
+    // Retrocede el carrusel a la
+    // diapositiva inmediatamente anterior.
     function prevSlide() {
         currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
         updateCarousel();
     }
 
     // Limpiar autoplay al interactuar manualmente
+    // Reinicia el temporizador de reproducción
+    // automática tras una interacción del usuario.
     function resetAutoplay() {
         clearInterval(autoplayInterval);
         startAutoplay();
@@ -82,6 +92,8 @@
     });
 
     // Iniciar Autoplay
+    // Configura el intervalo de avance
+    // automático para el carrusel.
     function startAutoplay() {
         autoplayInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
     }

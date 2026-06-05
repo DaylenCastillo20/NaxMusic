@@ -84,7 +84,8 @@ body.body-auth::before {
     height: 78px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 18px;
+    display: block;
+    margin: 0 auto 18px auto;
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
 }

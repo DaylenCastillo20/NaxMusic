@@ -1,3 +1,5 @@
+// Destruye la sesión actual del usuario
+// y lo redirige a la página principal.
 export const cerrarSesion = async (req, res) => {
     // destruir la sesion (asumiendo el uso de express-session)
     if (req.session) {

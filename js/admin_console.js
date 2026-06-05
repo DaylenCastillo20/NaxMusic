@@ -40,6 +40,8 @@
         initAdminConsole();
     }
 
+    // Configura eventos iniciales y selecciona
+    // la pestaña predeterminada al cargar la consola.
     function initAdminConsole() {
         root = document.getElementById('adminConsole');
         if (!root || root.dataset.initialized === 'true') return;
@@ -58,6 +60,8 @@
         cambiarTab(activeTab);
     }
 
+    // Alterna entre diferentes secciones administrativas
+    // actualizando la vista y cargando sus datos.
     async function cambiarTab(tabName) {
         if (!TAB_CONFIG[tabName]) return;
 
@@ -80,12 +84,16 @@
         }
     }
 
+    // Modifica visualmente los botones de las
+    // pestañas para reflejar cuál está activa.
     function pintarTabs(tabName) {
         root.querySelectorAll('[data-admin-tab]').forEach((button) => {
             button.classList.toggle('is-active', button.dataset.adminTab === tabName);
         });
     }
 
+    // Actualiza dinámicamente los títulos y las
+    // columnas de la tabla según la sección activa.
     function pintarEncabezado(tabName) {
         const config = TAB_CONFIG[tabName];
         const title = root.querySelector('#adminTableTitle');
@@ -108,6 +116,8 @@
         }
     }
 
+    // Obtiene de la base de datos la lista
+    // de registros correspondientes a la pestaña.
     async function consultarTabla(tabName) {
         const supabase = await obtenerSupabase();
         const config = TAB_CONFIG[tabName];
@@ -123,6 +133,8 @@
         return Array.isArray(data) ? data : [];
     }
 
+    // Inyecta en el DOM las filas de datos
+    // obtenidas o un mensaje si está vacío.
     function pintarFilas(tabName, rows) {
         const tbody = root.querySelector('#adminTableBody');
         if (!tbody) return;
@@ -145,6 +157,8 @@
         tbody.innerHTML = rows.map(renderUsuarioRow).join('');
     }
 
+    // Genera el código HTML para mostrar la
+    // información resumida de una cotización.
     function renderCotizacionRow(row) {
         const id = getId(row, TAB_CONFIG.cotizaciones.idFields);
         const cliente = firstValue(row, ['nombre_cliente', 'cliente_nombre', 'cliente', 'nombre'], 'Cliente sin nombre');
@@ -176,6 +190,8 @@
         `;
     }
 
+    // Construye la fila de la tabla para
+    // exhibir los datos de un servicio específico.
     function renderServicioRow(row) {
         const id = getId(row, TAB_CONFIG.servicios.idFields);
         const image = getImageUrl(row);
@@ -206,6 +222,8 @@
         `;
     }
 
+    // Retorna el HTML de una fila para
+    // desplegar los detalles de un usuario.
     function renderUsuarioRow(row) {
         const id = getId(row, TAB_CONFIG.usuarios.idFields);
         const nombre = firstValue(row, ['nombre', 'name'], 'Usuario sin nombre');
@@ -224,6 +242,8 @@
         `;
     }
 
+    // Evalúa los clics en la tabla para
+    // ejecutar acciones como ver o editar elementos.
     async function manejarAccionTabla(event) {
         const button = event.target.closest('[data-action]');
         if (!button) return;
@@ -241,6 +261,8 @@
         }
     }
 
+    // Abre la ventana de creación adecuada
+    // según la pestaña en la que se encuentre el admin.
     function manejarBotonAgregar() {
         if (activeTab === 'servicios') {
             abrirModalCrearServicio();
@@ -255,6 +277,8 @@
         }
     }
 
+    // Carga dinámicamente la librería de encriptación
+    // bcrypt para manejar contraseñas seguras.
     async function cargarBcrypt() {
         if (window.dcodeIO?.bcrypt) return window.dcodeIO.bcrypt;
         return new Promise((resolve, reject) => {
@@ -266,6 +290,8 @@
         });
     }
 
+    // Muestra el formulario en ventana modal
+    // para registrar un nuevo usuario en el sistema.
     function abrirModalCrearUsuario() {
         let isAdmin = false;
         try {
@@ -325,6 +351,8 @@
         root.querySelector('#userCreateForm')?.addEventListener('submit', guardarNuevoUsuario);
     }
 
+    // Procesa los datos del formulario, encripta la clave
+    // y guarda al usuario en la base de datos.
     async function guardarNuevoUsuario(event) {
         event.preventDefault();
 
@@ -381,6 +409,8 @@
         }
     }
 
+    // Busca y presenta en una ventana emergente
+    // la información completa de una cotización.
     async function abrirModalCotizacion(id) {
         abrirModal(`
             <div class="gc-modal-body">
@@ -400,6 +430,8 @@
         }
     }
 
+    // Construye y dibuja todo el contenido de
+    // la modal con los detalles de la cotización.
     function renderModalCotizacion(cotizacion, detalles, id) {
         const estadoActual = firstValue(cotizacion, ['estado'], 'Pendiente');
         const total = firstValue(cotizacion, ['total', 'valor_total', 'monto'], calcularTotalDetalles(detalles));
@@ -444,6 +476,8 @@
         root.querySelector('#saveQuoteStatus')?.addEventListener('click', guardarEstadoCotizacion);
     }
 
+    // Genera el HTML para cada línea de servicio
+    // incluida en el desglose de una cotización.
     function renderDetalleCotizacionRow(row) {
         const servicio = row.servicios || row.servicio || {};
         const nombreServicio = firstValue(servicio, ['nombre', 'titulo'], firstValue(row, ['nombre_servicio'], 'Servicio sin nombre'));
@@ -459,6 +493,8 @@
         `;
     }
 
+    // Actualiza en la base de datos el estado
+    // (Aprobada, Cancelada, Pendiente) de la cotización.
     async function guardarEstadoCotizacion(event) {
         const button = event.currentTarget;
         const id = button.dataset.id;
@@ -482,6 +518,8 @@
         }
     }
 
+    // Abre la ventana modal preparada con un
+    // formulario vacío para registrar un nuevo servicio.
     function abrirModalCrearServicio() {
         renderModalServicio({
             nombre: '',
@@ -492,6 +530,8 @@
         }, '', 'crear');
     }
 
+    // Recupera la información de un servicio
+    // específico y lo carga en el formulario de edición.
     async function abrirModalServicio(id) {
         abrirModal(`
             <div class="gc-modal-body">
@@ -510,6 +550,8 @@
         }
     }
 
+    // Dibuja el formulario de servicios adaptado
+    // ya sea para crear o para editar uno existente.
     function renderModalServicio(servicio, id, modo = 'editar') {
         const esCreacion = modo === 'crear';
         const imageField = getImageField(servicio) || 'imagen_url';
@@ -584,6 +626,8 @@
         });
     }
 
+    // Extrae la información del formulario, valida
+    // y crea el servicio a través de su controlador.
     async function crearServicioDesdeFormulario(event) {
         event.preventDefault();
 
@@ -613,6 +657,8 @@
         }
     }
 
+    // Lee las modificaciones hechas a un servicio
+    // y actualiza los datos persistentes del mismo.
     async function guardarServicio(event, servicioOriginal) {
         event.preventDefault();
 
@@ -647,6 +693,8 @@
         }
     }
 
+    // Toma los datos crudos del formulario
+    // y los organiza en un objeto estructurado.
     function leerPayloadServicio(form, imageField) {
         const formData = new FormData(form);
 
@@ -659,6 +707,8 @@
         };
     }
 
+    // Verifica que los datos ingresados para
+    // un servicio sean coherentes y no estén vacíos.
     function validarPayloadServicio(payload) {
         const imagen = payload.imagen_url || payload.url_imagen || payload.imagen || payload.image_url || payload.image;
 
@@ -671,6 +721,8 @@
         }
     }
 
+    // Intenta actualizar un servicio y maneja
+    // errores filtrando campos no compatibles si falla.
     async function actualizarServicioConFallback(id, payloadCompleto, servicioOriginal) {
         try {
             await actualizarPorId('servicios', TAB_CONFIG.servicios.idFields, id, payloadCompleto);
@@ -689,6 +741,8 @@
         }
     }
 
+    // Consulta la base de datos para obtener
+    // los servicios ligados a una cotización específica.
     async function obtenerDetalleCotizacion(id) {
         const supabase = await obtenerSupabase();
         const { data, error } = await supabase
@@ -725,6 +779,8 @@
         }));
     }
 
+    // Encuentra un único registro en la tabla
+    // probando distintos campos de identificación.
     async function obtenerRegistroPorId(table, idFields, id) {
         const supabase = await obtenerSupabase();
         let lastError = null;
@@ -738,6 +794,8 @@
         throw lastError || new Error('Registro no encontrado.');
     }
 
+    // Ejecuta una actualización genérica a un registro
+    // específico en una tabla de la base de datos.
     async function actualizarPorId(table, idFields, id, payload) {
         const supabase = await obtenerSupabase();
         let lastError = null;
@@ -751,6 +809,8 @@
         throw lastError || new Error('No se pudo actualizar el registro.');
     }
 
+    // Devuelve el cliente de Supabase asegurando
+    // su carga e inicialización si es necesario.
     async function obtenerSupabase() {
         if (window.supabase?.from) return window.supabase;
         if (!supabaseClientPromise) {
@@ -765,6 +825,8 @@
         return supabaseClientPromise;
     }
 
+    // Recupera dinámicamente el controlador
+    // de servicios para delegar la lógica de negocio.
     async function obtenerServicioController() {
         if (window.ServicioController?.crearServicio) {
             return window.ServicioController;
@@ -785,6 +847,8 @@
         return servicioControllerPromise;
     }
 
+    // Abre la ventana principal inyectando
+    // el código HTML correspondiente en su interior.
     function abrirModal(markup) {
         const modal = root.querySelector('#adminModal');
         const content = root.querySelector('#adminModalContent');
@@ -795,6 +859,8 @@
         modal.setAttribute('aria-hidden', 'false');
     }
 
+    // Renderiza una ventana emergente específica
+    // para notificar mensajes de error al usuario.
     function abrirModalError(title, message) {
         abrirModal(`
             <div class="gc-modal-body">
@@ -808,6 +874,8 @@
         `);
     }
 
+    // Cierra cualquier ventana emergente que esté
+    // actualmente visible y limpia sus clases.
     function cerrarModal() {
         const modal = root?.querySelector('#adminModal');
         if (!modal) return;
@@ -816,30 +884,40 @@
         modal.setAttribute('aria-hidden', 'true');
     }
 
+    // Evalúa si el clic realizado fue sobre
+    // un elemento que debe cerrar la ventana emergente.
     function manejarCierreModal(event) {
         if (event.target.closest('[data-modal-close]')) {
             cerrarModal();
         }
     }
 
+    // Escucha el teclado para cerrar la modal
+    // si el usuario presiona la tecla de Escape.
     function manejarEscapeModal(event) {
         if (event.key === 'Escape' && root?.querySelector('#adminModal')?.classList.contains('is-open')) {
             cerrarModal();
         }
     }
 
+    // Agrega temporalmente una fila con
+    // mensaje de carga mientras llegan los datos.
     function pintarCargando(tabName) {
         const tbody = root.querySelector('#adminTableBody');
         if (!tbody) return;
         tbody.innerHTML = obtenerFilaVacia(TAB_CONFIG[tabName].columns.length, 'Cargando registros...');
     }
 
+    // Muestra una advertencia en la tabla
+    // si ocurre algún fallo durante las consultas.
     function pintarError(tabName, message) {
         const tbody = root.querySelector('#adminTableBody');
         if (!tbody) return;
         tbody.innerHTML = obtenerFilaVacia(TAB_CONFIG[tabName].columns.length, message, '!');
     }
 
+    // Devuelve el esqueleto HTML para
+    // mostrar información en tablas sin registros.
     function obtenerFilaVacia(colspan, message, icon) {
         return `
             <tr class="gc-empty-row">

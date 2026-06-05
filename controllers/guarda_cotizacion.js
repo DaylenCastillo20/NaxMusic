@@ -2,6 +2,8 @@ import Cotizacion from '../models/Cotizacion.js';
 import DetalleCotizacion from '../models/DetalleCotizacion.js';
 import { supabase } from '../config/DatabaseConfig.js'; // Asumiendo que exportas tu cliente de Supabase desde aquí
 
+// Crea una nueva cotización y sus detalles asociados,
+// calculando y actualizando el total correspondiente.
 export const guardarCotizacion = async (req, res) => {
     const db = supabase;
 
