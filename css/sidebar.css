@@ -5,13 +5,16 @@
 /* Core structure — width, transitions, collapse behavior */
 .sidebar {
     width: 270px;
-    flex: 0 0 270px;
-    min-height: 100vh;
     background: #050505;
     border-right: 1px solid rgba(255, 0, 0, 0.15);
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 40;
     overflow: hidden;
-    transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
 }
 
 /* Decorative radial glow: top-left */
@@ -132,15 +135,13 @@
 /* ========================================= */
 
 .app-container.sidebar-collapsed .sidebar {
-    width: 0;
-    flex-basis: 0;
-    border-right: 0;
-    opacity: 0;
-    pointer-events: none;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s;
 }
 
 .app-container.sidebar-collapsed .main-content {
-    flex-basis: 100%;
+    margin-left: 0;
 }
 
 /* ========================================= */

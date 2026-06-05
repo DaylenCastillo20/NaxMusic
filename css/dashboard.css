@@ -1,74 +1,44 @@
 /* ========================================= */
-/* ============ HERO y CONTENIDO =========== */
+/* ============= SOBRE NOSOTROS ============ */
 /* ========================================= */
 
-.hero-card {
-    width: min(100%, 980px);
-    background: rgba(0, 0, 0, 0.74);
-    border: 1px solid rgba(229, 9, 20, 0.22);
-    padding: clamp(28px, 5vw, 56px);
-    border-radius: 16px;
-    margin-bottom: 30px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
+
+.font-handwritten {
+    font-family: 'Caveat', cursive;
 }
 
-#inicio {
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.hero-bg {
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 100%), url('C:/Users/ASUS/.gemini/antigravity-ide/brain/292507ba-440a-41b6-87d9-fbae3bf4e3d1/hero_bg_1780626911479.png');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
 }
 
-.hero-text h1,
-.hero-text h2 {
-    line-height: 1;
-    letter-spacing: 0;
+.card-glass {
+    background: linear-gradient(180deg, rgba(20,20,20,0.8) 0%, rgba(5,5,5,0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
-.hero-text h1 {
-    font-size: clamp(32px, 6vw, 72px);
+.card-glass:hover {
+    border-color: rgba(229, 9, 20, 0.3);
+    transform: translateY(-5px);
 }
 
-.hero-text h2 {
-    color: #e50914;
-    font-size: clamp(30px, 5vw, 64px);
-    margin-top: 8px;
+.pulse-line {
+    position: relative;
+    display: inline-block;
 }
 
-.hero-text p {
-    color: #d1d5db;
-    font-size: clamp(15px, 2vw, 20px);
-    margin-top: 18px;
+.pulse-line::before, .pulse-line::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40px;
+    height: 1px;
+    background-color: rgba(229, 9, 20, 0.5);
 }
 
-.hero-action {
-    margin-top: 28px;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 46px;
-    padding: 0 22px;
-    border-radius: 10px;
-    background: #e50914;
-    color: #fff;
-    font-weight: 700;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn:hover {
-    background: #ff1f2a;
-    box-shadow: 0 14px 34px rgba(229, 9, 20, 0.28);
-    transform: translateY(-2px);
-}
-
-.section-title {
-    margin-bottom: 20px;
-    color: #f3f4f6;
-    font-size: clamp(18px, 2vw, 24px);
-    letter-spacing: 0;
-}
+.pulse-line::before { left: -55px; }
+.pulse-line::after { right: -55px; }

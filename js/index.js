@@ -59,6 +59,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 cargarContenido(redirect);
             }, 100);
+        } else {
+            setTimeout(() => {
+                cargarContenido('dashboard');
+            }, 100);
         }
 
     } else {
@@ -77,14 +81,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             mostrarError("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.");
         }, 300);
         window.history.replaceState({}, document.title, "index.html");
-    }
-
-    if (urlParams.get('error') === 'registro_pass') {
+    } else if (urlParams.get('error') === 'registro_pass') {
         cargarContenido('registro');
         setTimeout(() => {
             mostrarError("Las contraseñas no coinciden");
         }, 300);
         window.history.replaceState({}, document.title, "index.html");
+    } else if (!userSession) {
+        // Cargar dashboard por defecto para invitados (si no hay redirecciones ni errores)
+        setTimeout(() => {
+            cargarContenido('dashboard');
+        }, 100);
     }
 });
 
@@ -122,7 +129,7 @@ async function cargarContenido(opcion) {
     }
 
     try {
-        const response = await fetch(`views/${opcion}.html`);
+        const response = await fetch(`views/${opcion}.html?v=${Date.now()}`);
         if (!response.ok) {
             throw new Error(`Vista ${opcion} no encontrada`);
         }
@@ -197,9 +204,8 @@ function setSidebarCollapsed(collapsed) {
 
 function initSidebarToggle() {
     const storedState = localStorage.getItem('naxSidebarCollapsed');
-    const savedState = storedState === null
-        ? window.matchMedia('(max-width: 768px)').matches
-        : storedState === '1';
+    // Siempre iniciar colapsado si no hay un estado guardado explícitamente como no-colapsado
+    const savedState = storedState === null ? true : storedState === '1';
     setSidebarCollapsed(savedState);
 
     document.addEventListener('click', (event) => {

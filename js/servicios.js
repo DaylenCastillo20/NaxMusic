@@ -132,7 +132,7 @@ function aplicarFiltros(servicios) {
     const precioLimite = dom.precioMaximo ? Number(dom.precioMaximo.value) : Infinity;
 
     return servicios
-        .filter(servicio => tabActivo === 'Todos' || servicio.categoria === tabActivo)
+        .filter(servicio => tabActivo === 'Todos' || (servicio.categoria && servicio.categoria.trim().toLowerCase() === tabActivo.trim().toLowerCase()))
         .filter(servicio => categoriasSeleccionadas.length === 0 || categoriasSeleccionadas.includes(servicio.categoria))
         .filter(servicio => idealesSeleccionados.length === 0 || idealesSeleccionados.some(ideal => servicio.ideal_para.includes(ideal)))
         .filter(servicio => servicio.precio <= precioLimite)

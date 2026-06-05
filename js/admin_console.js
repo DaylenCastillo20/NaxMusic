@@ -188,8 +188,8 @@
                 <td class="gc-code">#${escapeHtml(id)}</td>
                 <td>
                     ${image
-                        ? `<img class="gc-thumb" src="${escapeAttribute(image)}" alt="${escapeAttribute(nombre)}" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}';">`
-                        : '<div class="gc-thumb-placeholder" aria-hidden="true">-</div>'}
+                ? `<img class="gc-thumb" src="${escapeAttribute(image)}" alt="${escapeAttribute(nombre)}">`
+                : '<div class="gc-thumb-placeholder" aria-hidden="true">-</div>'}
                 </td>
                 <td>
                     <div class="gc-td-main">${escapeHtml(nombre)}</div>
@@ -274,7 +274,9 @@
                 const user = JSON.parse(sessionData);
                 if (user.tipo_usuario === 'Administrador') isAdmin = true;
             }
-        } catch(e) {}
+        } catch (e) {
+            console.warn('No se pudo verificar la sesión de administrador', e);
+        }
 
         if (!isAdmin) {
             mostrarAlertaExito('No tienes permisos para crear usuarios.');
@@ -325,11 +327,11 @@
 
     async function guardarNuevoUsuario(event) {
         event.preventDefault();
-        
+
         const form = event.currentTarget;
         const button = form.querySelector('[type="submit"]');
         const message = root.querySelector('#userModalMessage');
-        
+
         const formData = new FormData(form);
         const nombre = normalizarTexto(formData.get('nombre'));
         const email = normalizarTexto(formData.get('email'));
@@ -351,7 +353,7 @@
             const passwordHash = bcrypt.hashSync(password, salt);
 
             const supabase = await obtenerSupabase();
-            
+
             const { data: existingUser } = await supabase.from('usuarios').select('id_usuario').eq('email', email);
             if (existingUser && existingUser.length > 0) {
                 throw new Error('El correo ya está registrado.');
@@ -517,6 +519,8 @@
         const textoBoton = esCreacion ? 'Crear Servicio' : 'Guardar cambios';
         const precioValue = esCreacion ? '' : firstValue(servicio, ['precio', 'price'], 0);
 
+        const cat = escapeAttribute(firstValue(servicio, ['categoria', 'category', 'tipo'], ''));
+
         abrirModal(`
             <form class="gc-modal-body" id="serviceEditForm" data-mode="${escapeAttribute(modo)}" data-id="${escapeAttribute(id)}" data-image-field="${escapeAttribute(imageField)}">
                 <p class="gc-modal-kicker">Catalogo de servicios</p>
@@ -528,8 +532,25 @@
                         <input id="serviceName" name="nombre" type="text" value="${escapeAttribute(firstValue(servicio, ['nombre', 'titulo'], ''))}" required>
                     </div>
                     <div class="gc-form-field">
-                        <label for="serviceCategory">Categoria</label>
-                        <input id="serviceCategory" name="categoria" type="text" value="${escapeAttribute(firstValue(servicio, ['categoria', 'category', 'tipo'], ''))}" required>
+                        <label for="serviceCategory">Categoria (Tab)</label>
+                        <select id="serviceCategory" name="categoria" required>
+                            <option value="">Seleccionar</option>
+                            <option value="Sonido"${cat === 'Sonido' ? ' selected' : ''}>Sonido</option>
+                            <option value="Iluminacion"${cat === 'Iluminacion' ? ' selected' : ''}>Iluminacion</option>
+                            <option value="DJ"${cat === 'DJ' ? ' selected' : ''}>DJ</option>
+                            <option value="Animacion"${cat === 'Animacion' ? ' selected' : ''}>Animación</option>
+                        </select>
+                    </div>
+                    <div class="gc-form-field">
+                        <label for="tipo_evento">Tipo de evento (Ideal para)</label>
+                        <select id="tipo_evento" name="ideal" required>
+                            <option value="">Seleccionar</option>
+                            <option value="Bodas"${escapeAttribute(firstValue(servicio, ['ideal', 'ideal_para', 'tipo_evento'], '')) === 'Bodas' ? ' selected' : ''}>Bodas</option>
+                            <option value="Fiestas"${escapeAttribute(firstValue(servicio, ['ideal', 'ideal_para', 'tipo_evento'], '')) === 'Fiestas' ? ' selected' : ''}>Fiestas</option>
+                            <option value="Empresarial"${escapeAttribute(firstValue(servicio, ['ideal', 'ideal_para', 'tipo_evento'], '')) === 'Empresarial' ? ' selected' : ''}>Empresarial</option>
+                            <option value="Conciertos"${escapeAttribute(firstValue(servicio, ['ideal', 'ideal_para', 'tipo_evento'], '')) === 'Conciertos' ? ' selected' : ''}>Conciertos</option>
+                            <option value="Galas"${escapeAttribute(firstValue(servicio, ['ideal', 'ideal_para', 'tipo_evento'], '')) === 'Galas' ? ' selected' : ''}>Galas</option>
+                        </select>
                     </div>
                     <div class="gc-form-field">
                         <label for="servicePrice">Precio</label>
@@ -537,7 +558,7 @@
                     </div>
                     <div class="gc-form-field">
                         <label for="serviceImage">URL de la Imagen</label>
-                        <input id="serviceImage" name="imagen" type="text" value="${escapeAttribute(getImageUrl(servicio))}"${esCreacion ? ' required' : ''}>
+                        <input id="serviceImage" name="imagen" type="url" value="${escapeAttribute(getImageUrl(servicio))}"${esCreacion ? ' required' : ''}>
                     </div>
                     <div class="gc-form-field is-full">
                         <label for="serviceDescription">Descripcion</label>
