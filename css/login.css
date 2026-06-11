@@ -206,6 +206,71 @@ body.body-auth::before {
     margin: 0 auto;
 }
 
+/* --- Password Toggle Styling --- */
+.password-field {
+    position: relative;
+    width: 100%;
+    display: block;
+}
+
+#loginForm .password-field input,
+#registroForm .password-field input {
+    padding-right: 44px;
+}
+
+#loginForm button.password-toggle,
+#registroForm button.password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    min-height: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: var(--auth-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+#loginForm button.password-toggle:hover,
+#registroForm button.password-toggle:hover {
+    filter: none;
+    box-shadow: none;
+    transform: translateY(-50%) scale(1.1);
+    color: #ffffff;
+}
+
+#loginForm button.password-toggle:active,
+#registroForm button.password-toggle:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.password-toggle .icon-eye-off {
+    display: none;
+}
+
+.password-toggle.is-visible .icon-eye {
+    display: none;
+}
+
+.password-toggle.is-visible .icon-eye-off {
+    display: block;
+}
+
 @media (max-width: 520px) {
     .auth-screen,
     .fondo-login {
