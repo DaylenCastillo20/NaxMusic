@@ -17,17 +17,6 @@ window.serviciosSeleccionados = window.serviciosSeleccionados || [];
 let serviciosGlobales = [];
 let tabActivo = 'Todos';
 
-// Configuracion del caché
-const CACHE_KEY = "catalogoServicios";
-const CACHE_EXPIRATION_MS = 5 * 60 * 1000; // 5 minutos
-
-// Función global para invalidar el caché en el futuro
-window.limpiarCacheServicios = function() {
-    window.__serviciosCacheRAM = null;
-    sessionStorage.removeItem(CACHE_KEY);
-    console.log("[CACHE] Caché de servicios invalidado y limpiado.");
-};
-
 // Función para obtener referencias FRESCAS del DOM en cada renderizado (Evita referencias null/huérfanas)
 // Obtiene referencias frescas de los elementos
 // del DOM para evitar referencias huérfanas.
@@ -71,50 +60,8 @@ async function inicializarCatalogo() {
             throw new Error("ServicioController no se encontró en el ámbito global 'window'.");
         }
 
-        const now = Date.now();
-        let datosCargados = false;
-
-        // 1. Intentar recuperar desde caché en RAM
-        if (window.__serviciosCacheRAM && (now - window.__serviciosCacheRAM.timestamp < CACHE_EXPIRATION_MS)) {
-            console.log("[CACHE RAM] Obteniendo servicios");
-            serviciosGlobales = window.__serviciosCacheRAM.data;
-            datosCargados = true;
-        } else {
-            // 2. Intentar recuperar desde sessionStorage
-            const sessionCacheStr = sessionStorage.getItem(CACHE_KEY);
-            if (sessionCacheStr) {
-                try {
-                    const sessionCache = JSON.parse(sessionCacheStr);
-                    if (now - sessionCache.timestamp < CACHE_EXPIRATION_MS) {
-                        console.log("[CACHE SESSION] Obteniendo servicios");
-                        serviciosGlobales = sessionCache.data;
-                        // Restaurar en RAM
-                        window.__serviciosCacheRAM = sessionCache;
-                        datosCargados = true;
-                    } else {
-                        console.log("[CACHE SESSION] Caché expirado. Limpiando sessionStorage.");
-                        sessionStorage.removeItem(CACHE_KEY);
-                    }
-                } catch (e) {
-                    console.error("Error procesando caché de sessionStorage", e);
-                }
-            }
-        }
-
-        // 3. Consultar a Supabase si no se recuperaron datos del caché
-        if (!datosCargados) {
-            console.log("[SUPABASE] Obteniendo servicios");
-            // Solicitar los datos limpios y normalizados al controlador
-            serviciosGlobales = await window.ServicioController.obtenerServicios();
-            
-            // Guardar en caché (RAM y sessionStorage)
-            const cacheData = {
-                timestamp: now,
-                data: serviciosGlobales
-            };
-            window.__serviciosCacheRAM = cacheData;
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-        }
+        // Solicitar los datos limpios y normalizados al controlador
+        serviciosGlobales = await window.ServicioController.obtenerServicios();
 
         if (!serviciosGlobales || serviciosGlobales.length === 0) {
             mostrarEstadoCatalogo('No hay servicios disponibles en este momento.');
