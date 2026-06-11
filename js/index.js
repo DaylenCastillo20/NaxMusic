@@ -140,25 +140,13 @@ async function cargarContenido(opcion) {
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        const scripts = Array.from(doc.querySelectorAll('script'));
+        scripts.forEach(script => script.remove());
 
         const contenedorRegistro = doc.querySelector('.contenedor-registro');
         contenido.innerHTML = contenedorRegistro ? contenedorRegistro.outerHTML : doc.body.innerHTML;
 
-        const scripts = doc.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => {
-                let val = attr.value;
-                if (attr.name === 'src') {
-                    val = val + (val.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
-                }
-                newScript.setAttribute(attr.name, val);
-            });
-            if (oldScript.innerHTML) {
-                newScript.innerHTML = oldScript.innerHTML;
-            }
-            contenido.appendChild(newScript);
-        });
+        await ejecutarScriptsVista(scripts, contenido);
 
         if (opcion === 'formulario_eventos') {
             initCotizacionForm();
@@ -167,6 +155,42 @@ async function cargarContenido(opcion) {
     } catch (error) {
         console.error("Error cargando la vista:", error);
         mostrarError("Ocurrió un error cargando la sección.");
+    }
+}
+
+// Ejecuta los scripts declarados por cada vista en el
+// mismo orden en que aparecen dentro del HTML cargado.
+async function ejecutarScriptsVista(scripts, destino) {
+    for (const oldScript of scripts) {
+        await new Promise((resolve, reject) => {
+            const newScript = document.createElement('script');
+
+            Array.from(oldScript.attributes).forEach(attr => {
+                let val = attr.value;
+                if (attr.name === 'src') {
+                    val = val + (val.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                }
+                newScript.setAttribute(attr.name, val);
+            });
+
+            newScript.async = false;
+            newScript.onload = () => resolve();
+            newScript.onerror = () => reject(new Error(`No se pudo cargar el script ${newScript.src || 'inline'}`));
+
+            if (oldScript.textContent) {
+                newScript.textContent = oldScript.textContent;
+            }
+
+            try {
+                destino.appendChild(newScript);
+
+                if (!newScript.src) {
+                    resolve();
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 }
 

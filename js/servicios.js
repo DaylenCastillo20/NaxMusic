@@ -196,7 +196,8 @@ function configurarEventosFiltros() {
             const freshDom = obtenerElementosDOM();
 
             freshDom.shell.querySelectorAll('.services-tab').forEach(item => item.classList.remove('is-active'));
-            freshDom.shell.querySelector('[data-tab="Todos"]')?.classList.add('is-active');
+            const todosTab = freshDom.shell.querySelector('[data-tab="Todos"]');
+            if (todosTab) todosTab.classList.add('is-active');
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
@@ -290,6 +291,8 @@ function renderizarCarrito() {
     }
 
     if (contadorCarrito) contadorCarrito.textContent = cantidadTotal;
+    const floatingCartCount = document.getElementById('floatingCartCount');
+    if (floatingCartCount) floatingCartCount.textContent = cantidadTotal;
     if (subtotalCarrito) subtotalCarrito.textContent = `$${total.toLocaleString()}`;
     if (totalCarrito) totalCarrito.textContent = `$${total.toLocaleString()}`;
 
@@ -388,7 +391,7 @@ if (!window.__serviciosCarritoDelegationBound) {
 
     document.addEventListener('click', (e) => {
         const target = e.target;
-        if (!target?.closest) return;
+        if (!target || !target.closest) return;
 
         const botonEliminar = target.closest('[data-action="eliminar-carrito"]');
         if (botonEliminar) {
@@ -406,5 +409,24 @@ if (!window.__serviciosCarritoDelegationBound) {
         if (botonSolicitar && !botonSolicitar.disabled) {
             enviarCotizacionSeleccionada();
         }
+
+        const botonFloatingCart = target.closest('#floatingCartBtn');
+        if (botonFloatingCart) {
+            const panel = document.getElementById('panelCarrito');
+            if (panel) {
+                panel.classList.add('is-open');
+            }
+            return;
+        }
+
+        const botonCerrarCart = target.closest('#closeCartBtn');
+        if (botonCerrarCart) {
+            const panel = document.getElementById('panelCarrito');
+            if (panel) {
+                panel.classList.remove('is-open');
+            }
+            return;
+        }
     });
 }
+

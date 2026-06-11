@@ -875,3 +875,114 @@ body.auth-modal-lock {
         flex-direction: column;
     }
 }
+
+/* Floating Cart Styles */
+.floating-cart-btn {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--svc-red), #c4000b);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 25px rgba(239, 17, 28, 0.4);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.floating-cart-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 15px 35px rgba(239, 17, 28, 0.5);
+}
+
+.floating-cart-btn:active {
+    transform: scale(0.95);
+}
+
+.floating-cart-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+.floating-cart-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #fff;
+    color: var(--svc-red);
+    font-size: 13px;
+    font-weight: 800;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.close-cart-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.close-cart-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.close-cart-btn:active {
+    transform: scale(0.9);
+}
+
+.close-cart-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 980px) {
+    .floating-cart-btn {
+        display: flex;
+    }
+    
+    .services-shell:not(.is-checkout) .services-cart {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        bottom: 0;
+        width: 100%;
+        max-width: 400px;
+        z-index: 1200;
+        transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        border-radius: 0;
+        border: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .services-shell:not(.is-checkout) .services-cart.is-open {
+        right: 0;
+    }
+    
+    .services-shell.is-checkout .floating-cart-btn {
+        display: none !important;
+    }
+
+    .close-cart-btn.hidden {
+        display: flex !important;
+    }
+}

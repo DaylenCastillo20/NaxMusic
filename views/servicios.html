@@ -1,6 +1,7 @@
-
 <section class="services-shell" id="servicesShell">
-    <aside class="services-panel services-filters services-scroll bg-[#111317]/90 backdrop-blur-md border border-white/5 p-5 lg:p-6 shadow-2xl shadow-black/30 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500" aria-label="Filtros de servicios">
+    <aside
+        class="services-panel services-filters services-scroll bg-[#111317]/90 backdrop-blur-md border border-white/5 p-5 lg:p-6 shadow-2xl shadow-black/30 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500"
+        aria-label="Filtros de servicios">
         <div class="services-filter-title">
             <h2>Filtros</h2>
             <button type="button" id="limpiarFiltros">Limpiar</button>
@@ -12,25 +13,44 @@
                 <span>$100</span>
                 <strong id="precioActual">$2,000,000</strong>
             </div>
-            <input class="price-slider" id="precioMaximo" type="range" min="100" max="2000000" value="2000000" step="100000">
+            <input class="price-slider" id="precioMaximo" type="range" min="100" max="2000000" value="2000000"
+                step="100000">
         </div>
 
         <div class="filter-block">
             <h3>Tipo de servicio</h3>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="categoria" value="Sonido"> Sonido</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="categoria" value="Iluminacion">
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="categoria" value="Sonido"> Sonido</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="categoria" value="Iluminacion">
                 Iluminacion</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="categoria" value="DJ"> DJ</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="categoria" value="Animacion"> Animación</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="categoria" value="DJ"> DJ</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="categoria" value="Animacion"> Animación</label>
         </div>
 
         <div class="filter-block">
             <h3>Ideal para</h3>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="ideal" value="Conciertos"> Conciertos</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="ideal" value="Bodas"> Bodas</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="ideal" value="Fiestas"> Fiestas</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="ideal" value="Empresarial"> Empresarial</label>
-            <label class="filter-choice"><input class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30" type="checkbox" name="ideal" value="Galas"> Galas</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="ideal" value="Conciertos"> Conciertos</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="ideal" value="Bodas"> Bodas</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="ideal" value="Fiestas"> Fiestas</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="ideal" value="Empresarial"> Empresarial</label>
+            <label class="filter-choice"><input
+                    class="h-4 w-4 appearance-none rounded border border-white/15 bg-[#1c1f26] checked:border-red-500 checked:bg-red-600 focus:ring-2 focus:ring-red-600/30"
+                    type="checkbox" name="ideal" value="Galas"> Galas</label>
         </div>
     </aside>
 
@@ -51,18 +71,30 @@
             </select>
         </div>
 
-        <div class="services-catalog services-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500">
+        <div
+            class="services-catalog services-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500">
             <div id="contenedor-servicios" class="services-grid grid grid-cols-1 md:grid-cols-2 gap-6 w-full"></div>
         </div>
     </main>
 
-    <aside class="services-panel services-cart bg-[#111317]/90 backdrop-blur-md border border-white/5 p-5 lg:p-6 shadow-2xl shadow-black/30" id="panelCarrito" aria-label="Carrito de servicios">
+    <aside
+        class="services-panel services-cart bg-[#111317]/90 backdrop-blur-md border border-white/5 p-5 lg:p-6 shadow-2xl shadow-black/30"
+        id="panelCarrito" aria-label="Carrito de servicios">
         <div class="services-cart-header">
-            <h2 id="tituloCarrito">Tu carrito (<span id="contadorCarrito">0</span>)</h2>
+            <div class="flex items-center gap-2">
+                <button id="closeCartBtn" class="close-cart-btn hidden" aria-label="Cerrar carrito">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <h2 id="tituloCarrito">Tu carrito (<span id="contadorCarrito">0</span>)</h2>
+            </div>
             <button class="services-cart-edit" type="button" id="vaciarCarrito">Vaciar </button>
         </div>
 
-        <div class="cart-list services-scroll pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500" id="listaCarrito"></div>
+        <div class="cart-list services-scroll pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/[0.04] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-600/80 hover:[&::-webkit-scrollbar-thumb]:bg-red-500"
+            id="listaCarrito"></div>
 
         <div class="cart-totals">
             <div class="total-row">
@@ -79,11 +111,22 @@
             </div>
         </div>
 
-        <button class="cart-submit opacity-50 cursor-not-allowed transition-all duration-200" type="button" id="irAlCarrito" disabled>
+        <button class="cart-submit opacity-50 cursor-not-allowed transition-all duration-200" type="button"
+            id="irAlCarrito" disabled>
             Solicitar Cotizacion
         </button>
     </aside>
+
+    <button id="floatingCartBtn" class="floating-cart-btn" aria-label="Ver carrito">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+        </svg>
+        <span id="floatingCartCount" class="floating-cart-badge">0</span>
+    </button>
 </section>
+
 
 <script src="controllers/servicio_controller.js"></script>
 <script src="js/servicios.js"></script>

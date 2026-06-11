@@ -34,11 +34,11 @@ window.ServicioController = (function() {
     // antes de ser enviada a la base de datos.
     function prepararPayloadServicio(datosServicio) {
         const payload = {
-            nombre: normalizarTexto(datosServicio?.nombre),
-            descripcion: normalizarTexto(datosServicio?.descripcion),
-            precio: Number(datosServicio?.precio),
-            categoria: normalizarTexto(datosServicio?.categoria),
-            imagen_url: normalizarTexto(datosServicio?.imagen_url || datosServicio?.imagen)
+            nombre: normalizarTexto(datosServicio && datosServicio.nombre),
+            descripcion: normalizarTexto(datosServicio && datosServicio.descripcion),
+            precio: Number(datosServicio && datosServicio.precio),
+            categoria: normalizarTexto(datosServicio && datosServicio.categoria),
+            imagen_url: normalizarTexto((datosServicio && datosServicio.imagen_url) || (datosServicio && datosServicio.imagen))
         };
 
         if (!payload.nombre || !payload.categoria || !payload.descripcion || !payload.imagen_url) {
