@@ -14,8 +14,8 @@ window.serviciosSeleccionados = window.serviciosSeleccionados || [];
     }
 })();
 
-let serviciosGlobales = [];
-let tabActivo = 'Todos';
+var serviciosGlobales = [];
+var tabActivo = 'Todos';
 
 // Función para obtener referencias FRESCAS del DOM en cada renderizado (Evita referencias null/huérfanas)
 // Obtiene referencias frescas de los elementos
@@ -429,4 +429,3 @@ if (!window.__serviciosCarritoDelegationBound) {
         }
     });
 }
-
