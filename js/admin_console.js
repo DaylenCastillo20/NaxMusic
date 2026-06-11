@@ -644,6 +644,7 @@
 
             const controller = await obtenerServicioController();
             await controller.crearServicio(payload);
+            invalidarCacheServicios();
 
             form.reset();
             cerrarModal();
@@ -682,6 +683,7 @@
 
         try {
             await actualizarServicioConFallback(id, payloadCompleto, servicioOriginal);
+            invalidarCacheServicios();
             setModalMessage(message, 'Servicio actualizado correctamente.');
             cerrarModal();
             await cambiarTab('servicios');
@@ -701,6 +703,7 @@
         return {
             nombre: normalizarTexto(formData.get('nombre')),
             categoria: normalizarTexto(formData.get('categoria')),
+            ideal: normalizarTexto(formData.get('ideal')),
             precio: Number(formData.get('precio') || 0),
             descripcion: normalizarTexto(formData.get('descripcion')),
             [imageField]: normalizarTexto(formData.get('imagen'))
@@ -712,8 +715,8 @@
     function validarPayloadServicio(payload) {
         const imagen = payload.imagen_url || payload.url_imagen || payload.imagen || payload.image_url || payload.image;
 
-        if (!payload.nombre || !payload.categoria || !payload.descripcion || !imagen) {
-            throw new Error('Completa nombre, categoria, precio, URL de imagen y descripcion.');
+        if (!payload.nombre || !payload.categoria || !payload.ideal || !payload.descripcion || !imagen) {
+            throw new Error('Completa nombre, categoria, ideal para, precio, URL de imagen y descripcion.');
         }
 
         if (!Number.isFinite(payload.precio) || payload.precio <= 0) {
@@ -1014,6 +1017,21 @@
         }
 
         return fallback;
+    }
+
+    function invalidarCacheServicios() {
+        if (typeof window.limpiarCacheServicios === 'function') {
+            window.limpiarCacheServicios();
+            return;
+        }
+
+        if (window.__catalogoServiciosCache) {
+            window.__catalogoServiciosCache.timestamp = 0;
+            window.__catalogoServiciosCache.data = null;
+        }
+
+        window.catalogoServicios = [];
+        sessionStorage.removeItem('catalogoServicios');
     }
 
     function normalizarTexto(value) {
