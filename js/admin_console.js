@@ -467,13 +467,17 @@
                     <select class="gc-status-select" id="quoteStatusSelect" aria-label="Estado de la cotizacion">
                         ${QUOTE_STATUS_OPTIONS.map((status) => `<option value="${escapeAttribute(status)}"${normalizarEstado(status) === normalizarEstado(estadoActual) ? ' selected' : ''}>${escapeHtml(status)}</option>`).join('')}
                     </select>
-                    <button class="gc-action-primary" type="button" id="saveQuoteStatus" data-id="${escapeAttribute(id)}">Guardar estado</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="gc-action-secondary" style="background: rgba(220, 38, 38, 0.1); color: #ef4444; border-color: rgba(220, 38, 38, 0.3);" type="button" id="deleteQuoteBtn" data-id="${escapeAttribute(id)}">Eliminar</button>
+                        <button class="gc-action-primary" type="button" id="saveQuoteStatus" data-id="${escapeAttribute(id)}">Guardar estado</button>
+                    </div>
                 </div>
                 <div class="gc-modal-message" id="quoteModalMessage"></div>
             </div>
         `);
 
         root.querySelector('#saveQuoteStatus')?.addEventListener('click', guardarEstadoCotizacion);
+        root.querySelector('#deleteQuoteBtn')?.addEventListener('click', eliminarCotizacion);
     }
 
     // Genera el HTML para cada línea de servicio
@@ -610,6 +614,7 @@
 
                 <div class="gc-modal-actions">
                     <button class="gc-action-secondary" type="button" data-modal-close>Cancelar</button>
+                    ${!esCreacion ? `<button class="gc-action-secondary" style="background: rgba(220, 38, 38, 0.1); color: #ef4444; border-color: rgba(220, 38, 38, 0.3);" type="button" id="deleteServiceBtn" data-id="${escapeAttribute(id)}">Eliminar</button>` : ''}
                     <button class="gc-action-primary" type="submit">${escapeHtml(textoBoton)}</button>
                 </div>
                 <div class="gc-modal-message" id="serviceModalMessage"></div>
@@ -623,6 +628,10 @@
             }
 
             guardarServicio(event, servicio);
+        });
+
+        root.querySelector('#deleteServiceBtn')?.addEventListener('click', (event) => {
+            eliminarServicio(event, id);
         });
     }
 
@@ -810,6 +819,77 @@
         }
 
         throw lastError || new Error('No se pudo actualizar el registro.');
+    }
+
+    // Ejecuta la eliminacion fisica de un registro
+    // en una tabla de la base de datos.
+    async function eliminarPorId(table, idFields, id) {
+        const supabase = await obtenerSupabase();
+        let lastError = null;
+
+        for (const field of idFields) {
+            const { error } = await supabase.from(table).delete().eq(field, id);
+            if (!error) return true;
+            lastError = error;
+        }
+
+        throw lastError || new Error('No se pudo eliminar el registro.');
+    }
+
+    // Elimina una cotizacion de la base de datos
+    // y refresca la tabla de la interfaz.
+    async function eliminarCotizacion(event) {
+        const button = event.currentTarget;
+        const id = button.dataset.id;
+        const message = root.querySelector('#quoteModalMessage');
+
+        if (!confirm('¿Estás seguro de que deseas eliminar esta cotización? Esta acción no se puede deshacer.')) return;
+
+        setButtonLoading(button, true, 'Eliminando...');
+        setModalMessage(message, 'Eliminando cotización...');
+
+        try {
+            const supabase = await obtenerSupabase();
+            // Eliminar detalles de cotizacion para evitar error de llave foranea
+            await supabase.from('detalle_cotizacion').delete().eq('id_cotizacion', id);
+            
+            await eliminarPorId('cotizaciones', TAB_CONFIG.cotizaciones.idFields, id);
+            setModalMessage(message, 'Cotización eliminada correctamente.');
+            cerrarModal();
+            mostrarAlertaExito('Cotización eliminada correctamente.');
+            await cambiarTab('cotizaciones');
+        } catch (error) {
+            console.error('Error eliminando cotización:', error);
+            setModalMessage(message, error.message || 'No se pudo eliminar la cotización.', true);
+        } finally {
+            setButtonLoading(button, false);
+        }
+    }
+
+    // Elimina un servicio del catalogo
+    // y refresca la tabla de la interfaz.
+    async function eliminarServicio(event, id) {
+        const button = event.currentTarget;
+        const message = root.querySelector('#serviceModalMessage');
+
+        if (!confirm('¿Estás seguro de que deseas eliminar este servicio? Asegúrate de que no pertenezca a ninguna cotización existente.')) return;
+
+        setButtonLoading(button, true, 'Eliminando...');
+        setModalMessage(message, 'Eliminando servicio...');
+
+        try {
+            await eliminarPorId('servicios', TAB_CONFIG.servicios.idFields, id);
+            invalidarCacheServicios();
+            setModalMessage(message, 'Servicio eliminado correctamente.');
+            cerrarModal();
+            mostrarAlertaExito('Servicio eliminado correctamente.');
+            await cambiarTab('servicios');
+        } catch (error) {
+            console.error('Error eliminando servicio:', error);
+            setModalMessage(message, 'No se pudo eliminar el servicio, es posible que esté asociado a una cotización.', true);
+        } finally {
+            setButtonLoading(button, false);
+        }
     }
 
     // Devuelve el cliente de Supabase asegurando
